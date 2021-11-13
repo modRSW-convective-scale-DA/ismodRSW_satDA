@@ -1,7 +1,3 @@
-#######################################################################
-# Perturbed obs. EnKF for 1.5D SWEs with rain variable and topography
-#######################################################################
-
 '''
 Main run script for batch-processing of EnKF jobs. 
 Define outer-loop through parameter space and run the EnKF subroutine for each case.
@@ -10,6 +6,7 @@ Summary:
 > uses subroutine <subr_enkf_modRSW_p> that parallelises ensemble forecasts using multiprocessing module
 > Data saved to automatically-generated directories and subdirectories with accompanying readme.txt file.
 '''
+
 from __future__ import print_function
 
 ##################################################################
@@ -26,6 +23,7 @@ import h5py
 import importlib.util
 import sys
 
+##################################################################
 # HANDLE WARNINGS AS ERRORS
 ##################################################################
 import warnings
@@ -36,14 +34,13 @@ warnings.filterwarnings("error")
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
 
-from parameters import *
 from f_isenRSW import make_grid 
 from f_enkf_isenRSW import generate_truth
 from init_cond_isenRSW import init_cond_4
 from create_readme import create_readme
-from subr_enkf_isenRSW_p import run_enkf, run_enkf_v2
+from subr_enkf_isenRSW_p import run_enkf
 from obs_oper import obs_generator_rad
-from isen_func import interp_sig2etab,M_int
+from isen_func import interp_sig2etab, M_int
 
 ##################################################################
 # IMPORT PARAMETERS FROM CONFIGURATION FILE
@@ -86,8 +83,8 @@ try:
 except:
     print('Failed to load the observations: run create_truth+obs.py first')
 
-### LOAD LOOK-UP TABLE
-h5_file = h5py.File('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF_py3/inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+### Load look-up table for conversion from pseudo-density to non-dimensional pressure
+h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ##################################################################    
@@ -101,7 +98,7 @@ i = int(sys.argv[2])-1
 for j in range(0,len(add_inf)):
     for m in range(0,len(rtpp)):
         for l in range(0,len(rtps)):
-            run_enkf(i, j, m, l, U_tr_array, Y_obs, outdir, sys.argv[1],h5_file_data)
+            run_enkf(i, j, m, l, U_tr_array, Y_obs, outdir, sys.argv[1], h5_file_data)
 print(' ')   
 print(' --------- FINISHED OUTER LOOP -------- ')
 print(' ')   

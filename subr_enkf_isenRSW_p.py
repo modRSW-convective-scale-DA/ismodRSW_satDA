@@ -3,8 +3,6 @@
 #######################################################################
 
 '''
-May 2017
-
 SUBROUTINE (p) for batch-processing EnKF experiments. 
 Given parameters and truth run supplied by <main>, the function <run_enkf> carries out ensemble integratiopns 
 IN PARALLEL using the multiprocessing module.
