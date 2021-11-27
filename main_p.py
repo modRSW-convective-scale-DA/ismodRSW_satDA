@@ -68,16 +68,17 @@ except OSError as exception:
         raise
 
 ### LOAD TRUTH, OBSERVATIONS AND OBSERVATION OPERATOR ###
-
 f_path_name = str(outdir+'/U_tr_array_2xres_'+ass_freq+'.npy')
 f_obs_name = str(outdir+'/Y_obs_2xres_'+ass_freq+'.npy')
 
+### Check whether truth trajectory already exists, otherwise exit with error
 try:
     ' *** Loading truth trajectory... *** '
     U_tr_array = np.load(f_path_name)
 except:
     print(' Failed to find the truth trajectory: run create_truth+obs.py first')
 
+### Check whether observations alrady exsist, otherwise exit with error
 try:
     Y_obs = np.load(f_obs_name)
 except:
@@ -93,12 +94,11 @@ h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 print(' ')
 print(' ------- ENTERING EnKF OUTER LOOP ------- ')  
 print(' ')
-i = int(sys.argv[2])-1
-
-for j in range(0,len(add_inf)):
-    for m in range(0,len(rtpp)):
-        for l in range(0,len(rtps)):
-            run_enkf(i, j, m, l, U_tr_array, Y_obs, outdir, sys.argv[1], h5_file_data)
+for i in range(0,len(loc)):
+    for j in range(0,len(add_inf)):
+        for m in range(0,len(rtpp)):
+            for l in range(0,len(rtps)):
+                run_enkf(i, j, m, l, U_tr_array, Y_obs, outdir, sys.argv[1], h5_file_data)
 print(' ')   
 print(' --------- FINISHED OUTER LOOP -------- ')
 print(' ')   

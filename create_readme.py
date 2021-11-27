@@ -3,7 +3,6 @@
 # <dirn> to accompany outputted data from main run script and EnKF subroutine.
 #######################################################################
 
-#from parameters import *
 from datetime import datetime
 import os
 import importlib
@@ -74,7 +73,7 @@ def create_readme(dirn, config_file, i, j, m, l):
     print('Dynamics:', file=f)
     print(' ', file=f) 
     print('Ro =', Ro, file=f)  
-    print('(H_0 , H_c , H_r) =', [S0, sig_c, sig_r], file=f) 
+    print('(sig_0 , sig_c , sig_r) =', [S0, sig_c, sig_r], file=f) 
     print('(alpha, beta, c2) = ', [alpha2, beta, cc2], file=f)
     print('(cfl_fc, cfl_tr) = ', [cfl_fc, cfl_tr], file=f)
     print('Initial condition =', str(ic), file=f)
@@ -90,8 +89,6 @@ def create_readme(dirn, config_file, i, j, m, l):
         print('            >>> imperfect model scenario', file=f) 
     print(' ')  
     print('Number of ensembles =', n_ens, file=f)  
-#    print >>f, 'Assimilation times  =', PARS[3][1:]
-#    print >>f, 'Observation density: observe every', PARS[4][0], 'gridcells...'
     print('i.e., total no. of obs. =', n_obs, file=f)
     print('Observation noise =', ob_noise, file=f)
     if rtpp[m] != 1.0: # inflate the ensemble
