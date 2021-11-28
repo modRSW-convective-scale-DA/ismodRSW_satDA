@@ -85,7 +85,8 @@ except:
     print('Failed to load the observations: run create_truth+obs.py first')
 
 ### Load look-up table for conversion from pseudo-density to non-dimensional pressure
-h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+file_name = 'sigma_eta_theta2_'+str(int(theta2))+'_theta1_'+str(int(theta1))+'_eta0_'+str(eta0)+'_Z0_'+str(int(Z0))+'_k_'+str(round(k,2))+'.hdf'
+h5_file = h5py.File('inversion_tables/'+file_name,'r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ##################################################################    

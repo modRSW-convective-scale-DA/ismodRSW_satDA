@@ -120,7 +120,8 @@ f_path_name = str(outdir+'/U_tr_array_2xres_'+ass_freq+'.npy')
 f_obs_name = str(outdir+'/Y_obs_2xres_'+ass_freq+'.npy')
 
 ### Load look-up table for conversion from pseudo-density to non-dimensional pressure
-h5_file = h5py.File('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF_py3/inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+file_name = 'sigma_eta_theta2_'+str(int(theta2))+'_theta1_'+str(int(theta1))+'_eta0_'+str(eta0)+'_Z0_'+str(int(Z0))+'_k_'+str(round(k,2))+'.hdf'
+h5_file = h5py.File('inversion_tables/'+file_name,'r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ### Check whether truth trajectory already exsists, otherwise create new
