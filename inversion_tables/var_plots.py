@@ -1,22 +1,42 @@
-import numpy as np
-import matplotlib.pyplot as plt
+### This script generates:
+### 1) profiles of non-dimensional pressure in each layer as a function of the bottom-layer pseudo-density
+### 2) profiles of temperature (K) of each layer as a function of the bottom-layer pseudo-density
+### 3) profiles of fluid depth (m) of each layer as a function of the bottom-layer pseudo-density
 
-#### Define constants
-cp = 1004.
-g = 9.81
-R = 287.
-pref = 1000.
-k = R/cp
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
+import numpy as np
+import importlib
+import sys
+import scipy.special as sp
+import matplotlib.pyplot as plt
+from scipy import interpolate
+sys.path.append('..')
+
+##################################################################
+# IMPORT PARAMETERS FROM CONFIGURATION FILE
+##################################################################
+spec = importlib.util.spec_from_file_location("config", sys.argv[1])
+config = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(config)
+
+R = config.R
+cp = config.cp
+theta2 = config.theta2
+theta1 = config.theta1
+eta0 = config.eta0
+Z0 = config.Z0
+g = config.g
+k = config.k
+pref = config.pref
+sigc = pref*config.sig_c/g
+sigr = pref*config.sig_r/g
+
+# Define additional parameter
 kinv = 1./k
 
-#### Define parameters
-theta1 = 311.
-theta2 = 291.8
-eta0 = 0.48
-Z0 = 6120.
-sigc = pref*0.211/g
-sigr = pref*0.24/g
-
+### Array of non-dimensinal pressure values for the bottom layer
 eta2 = np.linspace(0.9,1.1,100)
 
 #### Sigma2 equation
@@ -35,6 +55,8 @@ T2 = theta2*eta2**k
 
 #### Plots
 fig, axes = plt.subplots(1, 3, figsize=(13,5))
+
+### Non-dimensional pressure in each layer
 axes[0].plot(eta2,sig2,label='$\eta_2$')
 axes[0].plot(eta1,sig2,label='$\eta_1$')
 axes[0].hlines(sigc,0.1,1.1,color='red',linestyle='dashed',label='$\sigma_c$')
@@ -47,6 +69,7 @@ axes[0].tick_params(axis='x',labelsize=15)
 axes[0].tick_params(axis='y',labelsize=15)
 axes[0].legend(loc=9,ncol=2,fontsize=12)
 
+### Temperature in each layer
 axes[1].plot(T2,sig2,label='$T_2$')
 axes[1].plot(T1,sig2,label='$T_1$')
 axes[1].hlines(sigc,220,320,color='red',linestyle='dashed',label='$\sigma_c$')
@@ -58,6 +81,7 @@ axes[1].tick_params(axis='x',labelsize=15)
 axes[1].tick_params(axis='y',labelsize=15)
 axes[1].legend(loc=9,ncol=2,fontsize=12)
 
+### Fluid depth in each layer
 axes[2].plot(h2,sig2,label='$h_2$')
 axes[2].plot(h1,sig2,label='$h_1$')
 axes[2].hlines(sigc,100,6200,color='red',linestyle='dashed',label='$\sigma_c$')

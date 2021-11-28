@@ -66,10 +66,14 @@ for j in range(0,len(sigma)):
 array2store = np.array([sigma,etab])
 
 ### Define metadata for output hdf file
-with h5py.File('sigma_eta_theta2_'+str(int(theta2))+'_theta1_'+str(int(theta1))+'_eta0_'+str(eta0)+'_Z0_'+str(int(Z0))+'_k_'+str(round(k,2))+'.hdf', 'w') as outfile:
+file_name = 'sigma_eta_theta2_'+str(int(theta2))+'_theta1_'+str(int(theta1))+'_eta0_'+str(eta0)+'_Z0_'+str(int(Z0))+'_k_'+str(round(k,2))+'.hdf'
+with h5py.File(file_name, 'w') as outfile:
     dataset = outfile.create_dataset('sigma_eta_iversion_table',data=array2store)
     dataset.attrs['theta2'] = theta2
     dataset.attrs['theta1'] = theta1
     dataset.attrs['eta0'] = eta0
     dataset.attrs['Z0'] = Z0
     dataset.attrs['R/cp'] = k
+
+### Print final message
+print('Look-up table written in file: ', file_name)
