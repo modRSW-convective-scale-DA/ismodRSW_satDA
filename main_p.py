@@ -15,7 +15,6 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 from scipy import signal
-#from pynverse import inversefunc
 import numpy as np
 import os
 import errno
@@ -39,7 +38,6 @@ from f_enkf_isenRSW import generate_truth
 from init_cond_isenRSW import init_cond_4
 from create_readme import create_readme
 from subr_enkf_isenRSW_p import run_enkf
-from obs_oper import obs_generator_rad
 from isen_func import interp_sig2etab, M_int
 
 ##################################################################

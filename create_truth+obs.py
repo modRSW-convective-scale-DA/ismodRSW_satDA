@@ -25,7 +25,7 @@ warnings.filterwarnings("error")
 
 from f_isenRSW import make_grid
 from f_enkf_isenRSW import generate_truth
-from obs_oper import obs_generator_rad
+from obs_oper import obs_generator
 
 #################################################################
 # IMPORT PARAMETERS FROM CONFIGURATION FILE                     #
@@ -155,7 +155,7 @@ except:
     Y_obs = np.empty([n_obs, np.size(U_tr_array, 2)-1])
     ob_noise = np.repeat(ob_noise,[n_obs_sat,n_obs_T,n_obs_u,n_obs_v,n_obs_r])
     for T in range(np.size(U_tr_array, 2)-1):
-        Y_obs[:,T] = obs_generator_rad(U_tmp,Nk_tr,Nk_fc,Kk_tr,dres,Y_obs,ob_noise,sat_vel,n_obs_sat,swathe,n_obs_grnd,n_obs_r,n_d_grnd,obs_T_d,obs_u_d,obs_v_d,obs_r_d,sigr_obs_mask,T,k,sig_c,sig_r,sat_init_pos,h5_file_data)
+        Y_obs[:,T] = obs_generator(U_tmp,Nk_tr,Nk_fc,Kk_tr,dres,Y_obs,ob_noise,sat_vel,n_obs_sat,swathe,n_obs_grnd,n_obs_r,n_d_grnd,obs_T_d,obs_u_d,obs_v_d,obs_r_d,sigr_obs_mask,T,k,sig_c,sig_r,sat_init_pos,h5_file_data)
     np.save(f_obs_name, Y_obs)
     print(' *** Observations generated and stored *** ')
 

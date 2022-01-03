@@ -1,24 +1,24 @@
 #######################################################################
-# Collection of functions used in EnKF scripts
+### This script contains a collection of functions used in the EnKF ###
 #######################################################################
-'''
-Functions:
-> generate_truth(): generates nature run at refined resolution (Nk_tr) and saves run at given observing times (assim_time)
-> gasp_cohn(): gaspari cohn taper function
->  analysis_step_enkf(): updates ensemble given observations from truth, returns analysis ensemble and forecast ensemble.
-'''
-from __future__ import print_function
+
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 from builtins import range
-import math as m
 import numpy as np
-import os
-from obs_oper import obs_oper_v2, obs_oper_v3, jacobian, Gain_modens_HM, dHdxK
-from isen_func import *
 
 ##################################################################
-#------------------ Compute nature run ------------------
+# CUSTOM FUNCTIONS AND MODULES REQUIRED
+##################################################################
+from obs_oper import obs_oper, obs_oper_nl, jacobian, Gain_modens_HM, dHdxK
+from isen_func import interp_sig2etab, dMdsig, M_int
+
+##################################################################
+# FUNCTIONS
 ##################################################################
 
+### Function to generate the nature run trajectory
 
 def generate_truth(U_tr_array, Nk_tr, tr_grid, Neq, cfl, assim_time, tmax, dtmeasure, f_path_name, R, k, theta1, theta2, eta0, g, Z0, U_scale, sig_r, sig_c, cc2, alpha2, beta, Ro, U_tr_rel, tau_rel, h5_file_data):
     
@@ -67,12 +67,10 @@ def generate_truth(U_tr_array, Nk_tr, tr_grid, Neq, cfl, assim_time, tmax, dtmea
     print('* DONE: truth array saved to:', f_path_name, ' with shape:', np.shape(U_tr_array), ' *')
         
     return U_tr_array    
-    
-    
+
 ##################################################################
-# GASPARI-COHN TAPER FUNCTION FOR COV LOCALISATION
-# from Jeff Whitaker's github: https://github.com/jswhit/
-################################################################    
+### Function to compute the Gaspari-Cohn taper function for covariance localisation (from Jeff Whitaker's github: https://github.com/jswhit/)
+
 def gaspcohn(r):
     # Gaspari-Cohn taper function
     # very close to exp(-(r/c)**2), where c = sqrt(0.15)
@@ -89,10 +87,9 @@ def gaspcohn(r):
     return taper    
 
 ##################################################################
-# GASPARI-COHN matrix using taper function
-################################################################ 
+### Function to assemble the Gaspari-Cohn matrix using the taper function
+
 def gaspcohn_matrix(loc_rho,Nk_fc,Neq):
-    # construct localisation matrix rho based on Gaspari Cohn function
     
     rr = np.arange(0,loc_rho,loc_rho/Nk_fc) 
     vec = gaspcohn(rr)
@@ -108,11 +105,8 @@ def gaspcohn_matrix(loc_rho,Nk_fc,Neq):
     return rho    
 
 ####################################################################
-# Square root of GASPARI-COHN matrix
-####################################################################
-
+### Function to calculate the square root of the Gaspari-Cohn matrix (from Jeff Whitaker's github: https://github.com/jswhit/L96)
 def gaspcohn_sqrt_matrix(rho,n_d):
-    # construct square root of localisation matrix (from Whitaker github)
 
     evals, eigs = np.linalg.eigh(rho)
     evals = np.where(evals > 1.e-10, evals, 1.e-10)
@@ -132,20 +126,21 @@ def gaspcohn_sqrt_matrix(rho,n_d):
     return z.T
 
 ##################################################################
-#'''------------------ ANALYSIS STEP v4 ------------------'''
-##################################################################
+### ANALYSIS STEP with linearisation of the observation operator
 
-# In this analysis step, the Kalman Gain is computed upon linearisation of the observation operator
-def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h5_file_data): #non-linear obs. oper. Houtekamer & Mitchell)
+def analysis_step_enkf_lin(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h5_file_data):
+
     '''
-       
         INPUTS
         U_fc: ensemble trajectories in U space, shape (Neq,Nk_fc,n_ens)
         U_tr: truth trajectory in U space, shape (Neq,Nk_tr,Nmeas+1)
+        Y_obs: observations
         tmeasure: time of assimilation
-        dtmeasure: length of window
-        pars_enda: vector of parameters relating to DA fixes (relaxation and localisation)
-        '''
+        dtmeasure: duration of forecast step
+        index: integer indicating time of assimilation 
+        pars: vector of parameters relating to DA (e.g. relaxation and localisation)
+        h5_file_data: look-up table to convert pseudo-density into non-dimensional pressure 
+    '''
    
     print(' ')
     print('----------------------------------------------')
@@ -205,9 +200,6 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
         U_tmp[:,i] = U_tr[:,i*dres,index+1]
     U_tr = U_tmp
    
-    '''
-        step 1.(c)
-        '''
     # for assimilation, work with [sig,u,v,r]
     U_fc[1:,:,:] = U_fc[1:,:,:]/U_fc[0,:,:]
     U_tr[1:,:] = U_tr[1:,:]/U_tr[0,:]
@@ -220,12 +212,9 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     for N in range(0,n_ens):
         X[:,N] = U_fc[:,:,N].flatten()
  
-    '''
-        Step 2.(a)
-        '''
     # make pseudo-obs by defining observation operator and adding perturbations
     # observation operator
-    H, row_vec, sat_pos = obs_oper_v2(n_obs, n_obs_sat, sat_init_pos, n_obs_grnd, obs_T_d, obs_u_d, obs_v_d, obs_r_d, n_d, Nk_fc, sat_vel, index)
+    H, row_vec, sat_pos = obs_oper(n_obs, n_obs_sat, sat_init_pos, n_obs_grnd, obs_T_d, obs_u_d, obs_v_d, obs_r_d, n_d, Nk_fc, sat_vel, index)
    
     # Add observation perturbations to each member, ensuring that the
     # observation perturbations have zero mean over all members to
@@ -244,9 +233,6 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     else: 
         Y_obs_per = np.repeat(Y_obs[:, index], n_ens).reshape(n_obs, n_ens)   
    
-    '''
-        Step 2.(b)
-        '''
     #### CALCULATE KALMAN GAIN, INNOVATIONS, AND ANALYSIS STATES ####
     ONE = np.ones([n_ens,n_ens])
     ONE = ONE/n_ens # NxN array with elements equal to 1/N
@@ -258,7 +244,7 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     sigu_mask = list(range(Nk_fc,2*Nk_fc))
     sigv_mask = list(range(2*Nk_fc,3*Nk_fc))
     sigr_mask = list(range(3*Nk_fc,4*Nk_fc))
-    HX, HdBsat = obs_oper_v3(H,X,n_ens,k,n_obs,n_obs_sat,sig_mask,sig_c,sig_r,Rgas,theta1,theta2,eta0,g,Z0,U_scale,h5_file_data) 
+    HX, HdBsat = obs_oper_nl(H,X,n_ens,k,n_obs,n_obs_sat,sig_mask,sig_c,sig_r,Rgas,theta1,theta2,eta0,g,Z0,U_scale,h5_file_data) 
     # construct localisation matrix rho based on Gaspari Cohn function
     loc_rho = loc # loc_rho is form of lengthscale.
     rho = gaspcohn_matrix(loc_rho,Nk_fc,Neq)
@@ -277,9 +263,9 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
         Pf = np.matmul(np.delete(Xdev,i,1), np.delete(Xdev,i,1).T)
         Pf = Pf/(n_ens-2)
         J = jacobian(HdBsat[:,i],H,index,Nk_fc*dres,k,dres,sat_vel,n_obs_sat,sat_init_pos)
-        Ktemp = np.matmul(J,np.matmul(rho * Pf,J.T)) + R # H B H^T + R (see eq.6 in Houtekamer & Mitchell 2001)
+        Ktemp = np.matmul(J,np.matmul(rho * Pf,J.T)) + R # H B H^T + R
         Ktemp = np.linalg.inv(Ktemp) # [H B H^T + R]^-1
-        K = np.matmul(np.matmul(rho * Pf, J.T), Ktemp) # (rho Pf)H^T [H (rho Pf) H^T + R]^-1 (see above)
+        K = np.matmul(np.matmul(rho * Pf, J.T), Ktemp) # (rho Pf)H^T [H (rho Pf) H^T + R]^-1
         Xan[:,i] = X[:,i] + np.matmul(K,D[:,i])
         HK = np.matmul(H,K)
         HKd[:,i] = np.diag(HK)
@@ -334,25 +320,18 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     Xan[sigv_mask,:] = Xan[sigv_mask,:]/Xan[sig_mask,:]
     Xan[sigr_mask,:] = Xan[sigr_mask,:]/Xan[sig_mask,:]
    
-    # masks for locating observations in observation vector
-    #sat_obs_mask = 0
-    #sigu_obs_mask = range(1,1+n_obs_grnd/(Neq-1))
-    #sigr_obs_mask = range(1+n_obs_grnd/(Neq-1),1+2*n_obs_grnd/(Neq-1))
-   
     print(' ')
     print('--------- CHECK SHAPE OF MATRICES: ---------')
     print(' ')
     print('U_fc shape   :', np.shape(U_fc))
     print('U_tr shape   :', np.shape(U_tr))
     print('X_truth shape:', np.shape(X_tr), '( NOTE: should be', n_d,' by 1 )')
-#    print 'X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')'
-#    print 'Xbar shape   :', np.shape(Xbar)
-#    print 'Xdev shape   :', np.shape(Xdev)
-#    print 'Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')'
-#    print 'H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')'
-#    print 'K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')'
-#    print 'ob_pert shape:', np.shape(obs_pert)
-#    print 'Y_mod shape  :', np.shape(Y_mod)
+    print 'X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')'
+    print 'Xbar shape   :', np.shape(Xbar)
+    print 'Xdev shape   :', np.shape(Xdev)
+    print 'Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')'
+    print 'H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')'
+    print 'K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')'
     print('Y_obs shape  :', np.shape(Y_obs))
     print('Xan shape    :', np.shape(Xan), '( NOTE: should be the same as X shape)')
     print('U_an shape   :', np.shape(U_an), '( NOTE: should be the same as U_fc shape)')
@@ -375,8 +354,6 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     if(n_obs_r>0): OI_vec[5] = np.sum(HKd_mean[sigr_obs_mask])/n_obs
 
     np.set_printoptions(formatter={'float': '{: 0.4f}'.format})
-#    print 'trace(HK) =', np.trace(HK)
-#    print 'shape(HK) =', np.shape(HK), '( NOTE: should be', n_obs,'by', n_obs,')'
     print('OI =', OI_vec[0])
     print('OI check = ', np.sum(HKd_mean)/n_obs)
     print('OI_sat =', OI_vec[1])
@@ -394,20 +371,22 @@ def analysis_step_enkf_v4(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     return U_an, U_fc, X, X_tr, Xan, OI_vec
 
 ##################################################################
-#'''------------------ ANALYSIS STEP v5 ------------------'''
-##################################################################
+### ANALYSIS STEP with modulated ensemble and non-linear observation operator
 
-# Analysis step with modulated ensemble and non linear observation operator (Bishop et al., 2017; Houtekamer & Mitchell, 2001)
-def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h5_file_data, dirn): #non-linear obs. oper. Houtekamer & Mitchell)
+def analysis_step_enkf_nl(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h5_file_data, dirn):
+
     '''
-       
         INPUTS
         U_fc: ensemble trajectories in U space, shape (Neq,Nk_fc,n_ens)
         U_tr: truth trajectory in U space, shape (Neq,Nk_tr,Nmeas+1)
+        Y_obs: observations
         tmeasure: time of assimilation
-        dtmeasure: length of window
-        pars_enda: vector of parameters relating to DA fixes (relaxation and localisation)
-        '''
+        dtmeasure: duration of forecast step
+        index: integer indicating time of assimilation 
+        pars: vector of parameters relating to DA (e.g. relaxation and localisation)
+        h5_file_data: look-up table to convert pseudo-density into non-dimensional pressure 
+        dirn: output directory to save debug data
+    '''
    
     print(' ')
     print('----------------------------------------------')
@@ -467,9 +446,6 @@ def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
         U_tmp[:,i] = U_tr[:,i*dres,index+1]
     U_tr = U_tmp
    
-    '''
-        step 1.(c)
-        '''
     # for assimilation, work with [sig,u,v,r]
     U_fc[1:,:,:] = U_fc[1:,:,:]/U_fc[0,:,:]
     U_tr[1:,:] = U_tr[1:,:]/U_tr[0,:]
@@ -482,14 +458,12 @@ def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     for N in range(0,n_ens):
         X[:,N] = U_fc[:,:,N].flatten()
  
-    '''
-        Step 2.(a)
-        '''
     # make pseudo-obs by defining observation operator and adding perturbations
     # observation operator
-    H, row_vec, sat_pos = obs_oper_v2(n_obs, n_obs_sat, sat_init_pos, n_obs_grnd, obs_T_d, obs_u_d, obs_v_d, obs_r_d, n_d, Nk_fc, sat_vel, index)
+    H, row_vec, sat_pos = obs_oper(n_obs, n_obs_sat, sat_init_pos, n_obs_grnd, obs_T_d, obs_u_d, obs_v_d, obs_r_d, n_d, Nk_fc, sat_vel, index)
   
-    np.save(str(dirn+'/H_obs_oper_v2.npy'),H)
+    np.save(str(dirn+'/H_obs_oper.npy'),H) # save linear observation operator for debug
+
     # Add observation perturbations to each member, ensuring that the
     # observation perturbations have zero mean over all members to
     # avoid perturbing the ensemble mean. Do not apply when rtpp factor is 0.5
@@ -506,10 +480,7 @@ def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
         Y_obs_per = np.repeat(Y_obs[:, index], n_ens).reshape(n_obs, n_ens) + obs_pert
     else: 
         Y_obs_per = np.repeat(Y_obs[:, index], n_ens).reshape(n_obs, n_ens)   
-   
-    '''
-        Step 2.(b)
-        '''
+
     #### CALCULATE KALMAN GAIN, INNOVATIONS, AND ANALYSIS STATES ####
     ONE = np.ones([n_ens,n_ens])
     ONE = ONE/n_ens # NxN array with elements equal to 1/N
@@ -521,8 +492,8 @@ def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     sigu_mask = list(range(Nk_fc,2*Nk_fc))
     sigv_mask = list(range(2*Nk_fc,3*Nk_fc))
     sigr_mask = list(range(3*Nk_fc,4*Nk_fc))
-    HX, HdBsat = obs_oper_v3(H,X,n_ens,k,n_obs,n_obs_sat,sig_mask,sig_c,sig_r,Rgas,theta1,theta2,eta0,g,Z0,U_scale,h5_file_data) 
-    np.save(str(dirn+'/H_obs_oper_v3.npy'),H)
+    HX, HdBsat = obs_oper_nl(H,X,n_ens,k,n_obs,n_obs_sat,sig_mask,sig_c,sig_r,Rgas,theta1,theta2,eta0,g,Z0,U_scale,h5_file_data) 
+    np.save(str(dirn+'/H_obs_oper_nl.npy'),H) # save nonlinear observation operator for debug
 
     # construct localisation matrix rho based on Gaspari Cohn function
     loc_rho = loc # loc_rho is form of lengthscale.
@@ -538,18 +509,11 @@ def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     HKtr = np.empty(n_ens)
     Xan = np.empty((n_d,n_ens))
 
-    #import matplotlib.pyplot as plt
-    #plt.boxplot(HX.T)
-    #plt.plot(range(1,43),Y_obs_per[:,0],marker='x')
-    #plt.show()
-    #exit()
- 
     S = np.zeros((n_d,n_ens))
-    print(S.shape)
 
     # covariance matrix
     for i in range(0,n_ens):
-        K = Gain_modens_HM(rho,n_ens-1,n_d,Xbar[:,0],np.delete(Xdev,i,1),sig_mask,k,H,sig_c,sig_r,n_obs,n_obs_sat,R,h5_file_data,dirn)
+        K = Gain_modens_HM(rho,n_ens-1,n_d,Xbar[:,0],np.delete(Xdev,i,1),sig_mask,k,H,sig_c,sig_r,n_obs,n_obs_sat,R,h5_file_data)
         S[:,i] = np.matmul(K,D[:,i])
         Xan[:,i] = X[:,i] + np.matmul(K,D[:,i])
         if(n_obs_sat+n_obs_T>0): 
@@ -607,25 +571,18 @@ def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     Xan[sigv_mask,:] = Xan[sigv_mask,:]/Xan[sig_mask,:]
     Xan[sigr_mask,:] = Xan[sigr_mask,:]/Xan[sig_mask,:]
    
-    # masks for locating observations in observation vector
-    #sat_obs_mask = 0
-    #sigu_obs_mask = range(1,1+n_obs_grnd/(Neq-1))
-    #sigr_obs_mask = range(1+n_obs_grnd/(Neq-1),1+2*n_obs_grnd/(Neq-1))
-   
     print(' ')
     print('--------- CHECK SHAPE OF MATRICES: ---------')
     print(' ')
     print('U_fc shape   :', np.shape(U_fc))
     print('U_tr shape   :', np.shape(U_tr))
     print('X_truth shape:', np.shape(X_tr), '( NOTE: should be', n_d,' by 1 )')
-#    print 'X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')'
-#    print 'Xbar shape   :', np.shape(Xbar)
-#    print 'Xdev shape   :', np.shape(Xdev)
-#    print 'Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')'
-#    print 'H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')'
-#    print 'K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')'
-#    print 'ob_pert shape:', np.shape(obs_pert)
-#    print 'Y_mod shape  :', np.shape(Y_mod)
+    print 'X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')'
+    print 'Xbar shape   :', np.shape(Xbar)
+    print 'Xdev shape   :', np.shape(Xdev)
+    print 'Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')'
+    print 'H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')'
+    print 'K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')'
     print('Y_obs shape  :', np.shape(Y_obs))
     print('Xan shape    :', np.shape(Xan), '( NOTE: should be the same as X shape)')
     print('U_an shape   :', np.shape(U_an), '( NOTE: should be the same as U_fc shape)')
@@ -648,8 +605,6 @@ def analysis_step_enkf_v5(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     if(n_obs_r>0): OI_vec[5] = np.sum(HKd_mean[sigr_obs_mask])/n_obs
 
     np.set_printoptions(formatter={'float': '{: 0.4f}'.format})
-#    print 'trace(HK) =', np.trace(HK)
-#    print 'shape(HK) =', np.shape(HK), '( NOTE: should be', n_obs,'by', n_obs,')'
     print('OI =', OI_vec[0])
     print('OI check = ', np.sum(HKd_mean)/n_obs)
     print('OI_sat =', OI_vec[1])

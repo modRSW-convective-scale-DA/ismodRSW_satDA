@@ -39,7 +39,7 @@ sigma = np.arange(0.,2.,1e-4)
 sig_zero = (lambda etab: etab-((1./(R*kinv))*(1./(theta1-theta2))*(-(R*kinv)*theta2*etab**k+(R*kinv)*theta1*eta0**k+g*Z0))**kinv-sigma)
 
 # Interval of values of non-dimensional pressure within which inversion is performed
-etab_zero = np.linspace(1.1,1.5,res)
+etab_zero = np.linspace(1.0,1.5,res)
 
 # Compute residual for the first element of etab_zero
 sig = sig_zero(etab_zero[0])

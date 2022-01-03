@@ -1,18 +1,25 @@
 #######################################################################
-# Investigating computation and structure of model error and candidate Q matrices
-#######################################################################
+### This script generates a Q matrix according to the parameters in the configuration file
+
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import numpy as np
 import importlib
 import sys
 import h5py
 import matplotlib.pyplot as plt
 from scipy import linalg
+
+##################################################################
+# HANDLE WARNINGS AS ERRORS
+##################################################################
 from f_isenRSW import make_grid, step_forward_isenRSW, time_step
 from isen_func import interp_sig2etab, dMdsig, M_int
+
 ##################################################################
 # IMPORT PARAMETERS FROM CONFIGURATION FILE
 ##################################################################
-
 spec = importlib.util.spec_from_file_location("config", sys.argv[1])
 config = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(config)

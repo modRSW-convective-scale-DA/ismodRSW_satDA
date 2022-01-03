@@ -10,7 +10,7 @@ from init_cond_isenRSW import init_cond_9
 from relax_sol_isenRSW import U_relax_12
 
 '''Output directory'''
-outdir = '/output/config#325'
+outdir = 'output/config#325'
 
 ''' MODEL PARAMETERS '''
 

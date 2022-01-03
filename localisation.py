@@ -2,6 +2,9 @@
 # Investigating effect of localisation lengthscale
 #######################################################################
 
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import math as m
 import numpy as np
 import importlib.util
@@ -10,7 +13,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import os    
+import os
 import errno
 import sys
 
