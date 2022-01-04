@@ -158,7 +158,7 @@ def Gain_modens_HM(rho,K,n_d,Xbar,Xdev,sig_mask,k,H,sig_c,sig_r,n_obs,n_obs_sat,
     
     import scipy.linalg as sl
     import scipy.special as sp   
-    from f_enkf_isenRSW import gaspcohn_sqrt_matrix
+    from f_enkf_ismodRSW import gaspcohn_sqrt_matrix
 
     W = gaspcohn_sqrt_matrix(rho,n_d)
     L = np.size(W,axis=1)

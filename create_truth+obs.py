@@ -23,8 +23,8 @@ warnings.filterwarnings("error")
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
 
-from f_isenRSW import make_grid
-from f_enkf_isenRSW import generate_truth
+from f_ismodRSW import make_grid
+from f_enkf_ismodRSW import generate_truth
 from obs_oper import obs_generator
 
 #################################################################

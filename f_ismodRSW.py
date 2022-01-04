@@ -1,5 +1,5 @@
 #######################################################################
-# FUNCTIONS REQUIRED FOR NUMERICAL INTEGRATION OF THE isenRSW MODEL WITH and WITHOUT TOPOGRAPHY
+# FUNCTIONS REQUIRED FOR NUMERICAL INTEGRATION OF THE ismodRSW MODEL
 #######################################################################
 
 ''' 
@@ -16,8 +16,6 @@ Module contains numerous functions for the numerical inegration of the modRSW mo
     
 import math as m
 import numpy as np
-from numba import double
-from numba.decorators import jit
 from isen_func import interp_sig2etab, dMdsig, M_int
 
 ##################################################################
@@ -477,7 +475,7 @@ def step_forward_periodic_RK2(U0,dt,Nk,Neq,Kk,M0,Mc,sig_r,sig_c,dM_dsig0,cc2,alp
     return U2
 
 #@jit
-def step_forward_isenRSW(U,U_rel,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel):
+def step_forward_ismodRSW(U,U_rel,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel):
 ### INPUT ARGS:
 # U: array of variarible values at t, size (Neq,Nk)
 # dt: stable time step
@@ -555,7 +553,7 @@ def step_forward_isenRSW(U,U_rel,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,al
 
 ##################################################################
 
-def step_forward_isenRSW_inflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,w1,U_infl,M_infl,dM_dsig_infl):
+def step_forward_ismodRSW_inflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,w1,U_infl,M_infl,dM_dsig_infl):
 ### INPUT ARGS:
 # U: array of variarible values at t, size (Neq,Nk)
 # dt: stable time step
@@ -637,7 +635,7 @@ def step_forward_isenRSW_inflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,a
 
     return UU
 
-def step_forward_isenRSW_inflow_outflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,BC,w1,U_infl,U_oufl,M_infl,M_oufl,dM_dsig_infl,dM_dsig_oufl):
+def step_forward_ismodRSW_inflow_outflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,BC,w1,U_infl,U_oufl,M_infl,M_oufl,dM_dsig_infl,dM_dsig_oufl):
 ### INPUT ARGS:
 # U: array of variarible values at t, size (Neq,Nk)
 # dt: stable time step
@@ -719,7 +717,7 @@ def step_forward_isenRSW_inflow_outflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_ds
 
     return UU
 
-def forecast_step_isenRSW(N, U_forec, U_rel, tau_rel, q, Neq, n_ens, n_d, Nk_fc, Kk_fc, cfl_fc, assim_time, index, tmeasure, dtmeasure, Nforec, Mc, sig_c, sig_r, cc2, beta, alpha2, Ro, R, k, theta1, theta2, eta0, g, Z0, U_scale, Q, NIAU, h5_file_data):
+def forecast_step_ismodRSW(N, U_forec, U_rel, tau_rel, q, Neq, n_ens, n_d, Nk_fc, Kk_fc, cfl_fc, assim_time, index, tmeasure, dtmeasure, Nforec, Mc, sig_c, sig_r, cc2, beta, alpha2, Ro, R, k, theta1, theta2, eta0, g, Z0, U_scale, Q, NIAU, h5_file_data):
             
     #######################################
     #  generate a *Nforec*-long forecast # 
@@ -766,7 +764,7 @@ def forecast_step_isenRSW(N, U_forec, U_rel, tau_rel, q, Neq, n_ens, n_d, Nk_fc,
            h[h < 0.] = 1e-3
            U[0, :] = h
         
-           U = step_forward_isenRSW(U,U_rel,dt,tn,Nk_fc,Neq,Kk_fc,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
+           U = step_forward_ismodRSW(U,U_rel,dt,tn,Nk_fc,Neq,Kk_fc,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
 
        U_forec[:,:,forec_T] = U
                 
@@ -807,7 +805,7 @@ def ens_forecast(N, U, U_rel, tau_rel, q, Neq, Nk_fc, Kk_fc, cfl_fc, assim_time,
         h[h < 0.] = 1e-3
         U[0,:,N] = h
         
-        U[:,:,N] = step_forward_isenRSW(U[:,:,N],U_rel,dt,tn,Nk_fc,Neq,Kk_fc,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
+        U[:,:,N] = step_forward_ismodRSW(U[:,:,N],U_rel,dt,tn,Nk_fc,Neq,Kk_fc,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
 
     return U[:,:,N]
 

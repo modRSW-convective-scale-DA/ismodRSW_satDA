@@ -8,7 +8,7 @@ import errno
 import h5py
 import scipy.linalg as sl
 import scipy.special as sp   
-from f_enkf_isenRSW import gaspcohn_matrix, gaspcohn_sqrt_matrix
+from f_enkf_ismodRSW import gaspcohn_matrix, gaspcohn_sqrt_matrix
 from isen_func import interp_sig2etab
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import imshow
@@ -62,7 +62,7 @@ except OSError as exception:
 ###################################################################
 
 ### load look-up table
-h5_file = h5py.File('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF_py3/inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 Xforec = np.load(str(dirn+'/X_forec.npy')) # long term forecast

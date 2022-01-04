@@ -19,8 +19,8 @@ import shutil
 ##################################################################
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
-from f_isenRSW import make_grid, time_step, ens_forecast, forecast_step_isenRSW
-from f_enkf_isenRSW import analysis_step_enkf_nl
+from f_ismodRSW import make_grid, time_step, ens_forecast
+from f_enkf_ismodRSW import analysis_step_enkf_nl
 from create_readme import create_readme
 from isen_func import interp_sig2etab, M_int
 
@@ -268,7 +268,6 @@ def run_enkf(i, j, m, l, U_tr_array, Y_obs, dirname, config_file, h5_file_data):
         
             U = U_an # update U with analysis ensembles for next integration
             dU = U_an - np.repeat(U_tr_array[:,0::dres,index+1], n_ens).reshape([Neq, Nk_fc, n_ens])
-            print("Analysis", dU[0].min(), dU[0].max(), dU[1].min(), dU[1].max(), dU[2].min(), dU[2].max(), dU[3].min(), dU[3].max())
             
             #######################################
             #  generate a *Nforec*-long forecast # 

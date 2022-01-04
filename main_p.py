@@ -3,7 +3,7 @@ Main run script for batch-processing of EnKF jobs.
 Define outer-loop through parameter space and run the EnKF subroutine for each case.
 Summary:
 > truth generated outside of outer loop as this is the same for all experiments 
-> uses subroutine <subr_enkf_modRSW_p> that parallelises ensemble forecasts using multiprocessing module
+> uses subroutine <subr_enkf_ismodRSW_p> that parallelises ensemble forecasts using multiprocessing module
 > Data saved to automatically-generated directories and subdirectories with accompanying readme.txt file.
 '''
 
@@ -33,11 +33,10 @@ warnings.filterwarnings("error")
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
 
-from f_isenRSW import make_grid 
-from f_enkf_isenRSW import generate_truth
-from init_cond_isenRSW import init_cond_4
+from f_ismodRSW import make_grid 
+from f_enkf_ismodRSW import generate_truth
 from create_readme import create_readme
-from subr_enkf_isenRSW_p import run_enkf
+from subr_enkf_ismodRSW_p import run_enkf
 from isen_func import interp_sig2etab, M_int
 
 ##################################################################
@@ -52,7 +51,9 @@ ic = config.ic
 add_inf = config.add_inf
 rtpp = config.rtpp
 rtps = config.rtps
+loc = config.loc
 ass_freq = config.ass_freq
+table_file_name = config.table_file_name
 
 #################################################################
 # create directory for output
@@ -83,8 +84,7 @@ except:
     print('Failed to load the observations: run create_truth+obs.py first')
 
 ### Load look-up table for conversion from pseudo-density to non-dimensional pressure
-file_name = 'sigma_eta_theta2_'+str(int(theta2))+'_theta1_'+str(int(theta1))+'_eta0_'+str(eta0)+'_Z0_'+str(int(Z0))+'_k_'+str(round(k,2))+'.hdf'
-h5_file = h5py.File('inversion_tables/'+file_name,'r')
+h5_file = h5py.File('inversion_tables/'+table_file_name,'r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ##################################################################    

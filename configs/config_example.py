@@ -6,8 +6,8 @@ List of fixed parameters for model integration and EnKF.
 '''
 
 import numpy as np
-from init_cond_isenRSW import init_cond_9
-from relax_sol_isenRSW import U_relax_12
+from init_cond_ismodRSW import init_cond_9
+from relax_sol_ismodRSW import U_relax_12
 
 '''Output directory'''
 outdir = 'output/config#325'
@@ -42,10 +42,12 @@ cp = 1004.                          # isobaric mass heat capacity for dry air [J
 k = R/cp                            
 U_scale = 12.4                      # scaling velocity for the bottom layer [m/s]
 
-# RELAXATION SOLUTION FROM relax_sol_isenRSW.py:
+# LOOK-UP TABLE file name
+table_file_name = 'sigma_eta_theta2_'+str(int(theta2))+'_theta1_'+str(int(theta1))+'_eta0_'+str(eta0)+'_Z0_'+str(int(Z0))+'_k_'+str(round(k,2))+'.hdf'
+
+# RELAXATION SOLUTION FROM relax_sol_ismodRSW.py:
 U_relax = U_relax_12
 tau_rel = 4.
-
 
 # PSEUDO-DENSITY THRESHOLDS
 S0 = 0.2                            # constant 'at rest' pseudo-density
@@ -77,7 +79,7 @@ ass_freq='1h'                       # frequency of assimilation. This is only a 
 
 ### INITIAL CONDITION ###
 sig_ic = [0.02,0.008,0.1,0.0]       # initial perturbation (st. dev) to generate initial conditions [sigma,u,v,r]
-ic = init_cond_9                    # initial condition chosen from init_cond_isenRSW
+ic = init_cond_9                    # initial condition chosen from init_cond_ismodRSW
 
 ### Q MATRIX GENERATION ###
 model_noise = [0.0,0.0,0.0,0.0]     # user-specified model noise to create model error covariance matrix Q 

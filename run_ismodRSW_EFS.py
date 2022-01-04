@@ -28,7 +28,7 @@ from datetime import datetime
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
 
-from f_isenRSW import make_grid, time_step, ens_forecast
+from f_ismodRSW import make_grid, time_step, ens_forecast
 from create_readme import create_readme
 from isen_func import interp_sig2etab, M_int
 
@@ -145,7 +145,7 @@ X_fc_array = np.empty([n_d,n_ens,Tfc+1])
 X_fc_array[:,:,0] = X0
 
 ### LOAD LOOK-UP TABLE
-h5_file = h5py.File('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF_py3/inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ### Convection and rain thresholds

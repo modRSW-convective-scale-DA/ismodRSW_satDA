@@ -113,7 +113,7 @@ print(' ')
 ##################################################################
 
 ### load look-up table
-h5_file = h5py.File('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF_py3/inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 # determine parameters from loaded parameters

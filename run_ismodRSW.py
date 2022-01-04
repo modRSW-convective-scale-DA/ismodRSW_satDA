@@ -1,5 +1,5 @@
 #######################################################################
-# isenRSW with topography
+### Script to integrate the ismodRSW model alone
 #######################################################################
 '''
 Given mesh, IC, time paramters, integrates modRSW and plots evolution. 
@@ -25,7 +25,7 @@ import random
 ##################################################################
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
-from f_isenRSW import step_forward_isenRSW, time_step, make_grid, make_grid_2
+from f_ismodRSW import step_forward_ismodRSW, time_step, make_grid, make_grid_2
 from isen_func import interp_sig2etab, interp_sig2etab_keq1, M_int, dMdsig, dsig_detab, rossdef_radius
 
 ##################################################################
@@ -114,7 +114,7 @@ U0, B = ic(x,Nk,Neq,S0,L,A,V)
 #U0[2,:] = SIG*(1./(Ro*S0*kx1))*np.sin(kx1*x[:-1])*U0[0,:]
 
 '''
-shrira_data = np.load('/home/home02/mmlca/isenRSW/data_shrira_sol_3per.npy')
+shrira_data = np.load('/home/home02/mmlca/ismodRSW/data_shrira_sol_3per.npy')
 
 xc = shrira_data[0]
 Kk = xc[1] - xc[0]
@@ -158,7 +158,7 @@ print("** Initial condition "+str(name_fig)+" saved to "+ dirn)
 #plt.close()
 
 ### LOAD LOOK-UP TABLE
-h5_file = h5py.File('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF_py3/inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ##################################################################
@@ -292,9 +292,9 @@ while tn < tmax:
 #       	dt = dt-(tn-tmeasure)+1e-12
 #        tn = tmeasure+1e-12    
 
-    U = step_forward_isenRSW(U,U_rel,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel) 
-#    U = step_forward_isenRSW_inflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,BC,S0,w1,U_infl,M_infl,dM_dsig_infl)
-#    U = step_forward_isenRSW_inflow_outflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,BC,S0,w1,U_infl,U_oufl,M_infl,M_oufl,dM_dsig_infl,dM_dsig_oufl)
+    U = step_forward_ismodRSW(U,U_rel,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel) 
+#    U = step_forward_ismodRSW_inflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,BC,S0,w1,U_infl,M_infl,dM_dsig_infl)
+#    U = step_forward_ismodRSW_inflow_outflow(U,dt,tn,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,BC,S0,w1,U_infl,U_oufl,M_infl,M_oufl,dM_dsig_infl,dM_dsig_oufl)
     #U = step_forward_RK3(U,dt,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,R,k,theta1,theta2,eta0,g,Z0,U_scale,Ro,S0,w1,U_infl,M_infl,dM_dsig_infl)
 #    U = step_forward_RK3_oufl(U,dt,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,R,k,theta1,theta2,eta0,g,Z0,U_scale,Ro,S0,w1,U_infl,M_infl,dM_dsig_infl,U_oufl,M_oufl,dM_dsig_oufl)
 #    U = step_forward_periodic_RK3(U,dt,Nk,Neq,Kk,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,R,k,theta1,theta2,eta0,g,Z0,U_scale,Ro)

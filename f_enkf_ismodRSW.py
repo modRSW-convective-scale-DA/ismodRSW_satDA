@@ -22,7 +22,7 @@ from isen_func import interp_sig2etab, dMdsig, M_int
 
 def generate_truth(U_tr_array, Nk_tr, tr_grid, Neq, cfl, assim_time, tmax, dtmeasure, f_path_name, R, k, theta1, theta2, eta0, g, Z0, U_scale, sig_r, sig_c, cc2, alpha2, beta, Ro, U_tr_rel, tau_rel, h5_file_data):
     
-    from f_isenRSW import time_step, step_forward_isenRSW
+    from f_ismodRSW import time_step, step_forward_ismodRSW
 
     Kk_tr = tr_grid[0] 
     x_tr = tr_grid[1]
@@ -54,7 +54,7 @@ def generate_truth(U_tr_array, Nk_tr, tr_grid, Neq, cfl, assim_time, tmax, dtmea
             dt = dt - (tn - tmeasure) + 1e-12
             tn = tmeasure + 1e-12
                  
-        U_tr = step_forward_isenRSW(U_tr,U_tr_rel,dt,tn,Nk_tr,Neq,Kk_tr,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
+        U_tr = step_forward_ismodRSW(U_tr,U_tr_rel,dt,tn,Nk_tr,Neq,Kk_tr,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
 
         if tn > tmeasure:
             U_tr_array[:,:,index] = U_tr
@@ -326,12 +326,12 @@ def analysis_step_enkf_lin(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, 
     print('U_fc shape   :', np.shape(U_fc))
     print('U_tr shape   :', np.shape(U_tr))
     print('X_truth shape:', np.shape(X_tr), '( NOTE: should be', n_d,' by 1 )')
-    print 'X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')'
-    print 'Xbar shape   :', np.shape(Xbar)
-    print 'Xdev shape   :', np.shape(Xdev)
-    print 'Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')'
-    print 'H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')'
-    print 'K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')'
+    print('X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')')
+    print('Xbar shape   :', np.shape(Xbar))
+    print('Xdev shape   :', np.shape(Xdev))
+    print('Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')')
+    print('H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')')
+    print('K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')')
     print('Y_obs shape  :', np.shape(Y_obs))
     print('Xan shape    :', np.shape(Xan), '( NOTE: should be the same as X shape)')
     print('U_an shape   :', np.shape(U_an), '( NOTE: should be the same as U_fc shape)')
@@ -577,12 +577,12 @@ def analysis_step_enkf_nl(U_fc, U_tr, Y_obs, tmeasure, dtmeasure, index, pars, h
     print('U_fc shape   :', np.shape(U_fc))
     print('U_tr shape   :', np.shape(U_tr))
     print('X_truth shape:', np.shape(X_tr), '( NOTE: should be', n_d,' by 1 )')
-    print 'X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')'
-    print 'Xbar shape   :', np.shape(Xbar)
-    print 'Xdev shape   :', np.shape(Xdev)
-    print 'Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')'
-    print 'H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')'
-    print 'K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')'
+    print('X shape      :', np.shape(X), '( NOTE: should be', n_d,'by', n_ens,')')
+    print('Xbar shape   :', np.shape(Xbar))
+    print('Xdev shape   :', np.shape(Xdev))
+    print('Pf shape     :', np.shape(Pf), '( NOTE: should be n by n square for n=', n_d,')')
+    print('H shape      :', np.shape(H), '( NOTE: should be', n_obs,'by', n_d,')')
+    print('K shape      :', np.shape(K), '( NOTE: should be', n_d,'by', n_obs,')')
     print('Y_obs shape  :', np.shape(Y_obs))
     print('Xan shape    :', np.shape(Xan), '( NOTE: should be the same as X shape)')
     print('U_an shape   :', np.shape(U_an), '( NOTE: should be the same as U_fc shape)')

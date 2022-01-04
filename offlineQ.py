@@ -8,13 +8,12 @@ import numpy as np
 import importlib
 import sys
 import h5py
-import matplotlib.pyplot as plt
 from scipy import linalg
 
 ##################################################################
 # HANDLE WARNINGS AS ERRORS
 ##################################################################
-from f_isenRSW import make_grid, step_forward_isenRSW, time_step
+from f_ismodRSW import make_grid, step_forward_ismodRSW, time_step
 from isen_func import interp_sig2etab, dMdsig, M_int
 
 ##################################################################
@@ -77,7 +76,7 @@ def Q_nhr():
     B = np.load(str(outdir + '/B_tr.npy')) # truth
     U_tr = np.load(str(outdir + '/U_tr_array_2xres_'+ass_freq+'.npy')) # truth
     ### LOAD LOOK-UP TABLE
-    h5_file = h5py.File('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF_py3/inversion_tables/sigma_eta_theta2_291_theta1_311.hdf','r')
+    h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
     h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
     fc_grid = make_grid(Nk_fc, L) # forecast
     Kk_fc = fc_grid[0]
@@ -91,9 +90,8 @@ def Q_nhr():
     Mc = M_int(etab_c,0.,R,k,theta1,theta2,eta0,g,Z0,U_scale) 
     for T in range(nsteps):
         tn = assim_time[T]
-        print(tn)
         tmeasure = tn+Nhr*dtmeasure
-        print(tmeasure)
+        print('*** Integrating between time:', tn, ' and: ', tmeasure, ' ***')
         U_fc = np.copy(U[:, :, T])
         while tn < tmeasure:
             etab = interp_sig2etab(U_fc[0,:],h5_file_data)
@@ -104,7 +102,8 @@ def Q_nhr():
             if tn > tmeasure:
                 dt = dt - (tn - tmeasure) + 1e-12
                 tn = tmeasure + 1e-12
-            U_fc = step_forward_isenRSW(U_fc,U_rel,dt,tn,Nk_fc,Neq,Kk_fc,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
+            U_fc = step_forward_ismodRSW(U_fc,U_rel,dt,tn,Nk_fc,Neq,Kk_fc,M,Mc,sig_r,sig_c,dM_dsig,cc2,alpha2,beta,Ro,tau_rel)
+        print('*** Storing the error at time: ', tmeasure, ' ***')
         X[:, T] = U[:, :, T+Nhr].flatten() - U_fc.flatten()
     print("Means of proxy error components = ", np.mean(U[:, :, 1:(nsteps+1)] - np.repeat(U_fc, nsteps).reshape(Neq, Nk_fc, nsteps), axis=(1, 2)))
 
@@ -121,29 +120,6 @@ def Q_nhr():
     # Return a diagonal matrix
     Q = np.diag(Q_diag)
 
-    # Recondition Q to have a maximum condition number of kappa following
-    # Smith et al.: doi:10.1002/2017GL075534, modified to use singular value
-    # decomposition.
-    #u, s, vh = linalg.svd(Q)
-    #print "Raw Q has 2-norm condition number = ", s[0] / s[-1]
-
-    # Apply the required eigenvalue offset and reconstruct Q using U alone
-    # to ensure positive semi-definiteness.
-    #kappa = 1000
-    #lam = (s[0] - kappa * s[-1]) / (kappa - 1)
-    #print "Reconditioning singular value offset = ", lam
-    #s += lam
-    #Q = np.dot(np.dot(u, np.diag(s)), np.transpose(u))
-    #print "Reconditioned Q has 2-norm condition number = ", s[0] / s[-1]
-
-    # Check for positive semi-definiteness.
-    #try:
-    #    tmp = np.linalg.cholesky(Q)
-    #except:
-    #    raise
-
-    #Q = np.diag(np.sum(X**2, axis=1) / nsteps)
-
     return Q
 
 ##################################################################
@@ -159,21 +135,3 @@ except:
     Q = eval(Q_FUNC)
     print(("Min. and max. variances", np.amin(Q.diagonal()), np.amax(Q.diagonal())))
     np.save(str(outdir + '/Qmatrix'), Q)
-
-# Plot the Q matrix.
-#fig = plt.figure(1)
-#ax = fig.add_subplot(111)
-#cax = ax.pcolormesh(Q, vmin=-0.02, vmax=0.02, cmap='RdBu_r')
-#fig.colorbar(cax)
-#fig.show()
-
-# Correlation matrix.
-#Qcorr = np.corrcoef(X, bias=False)
-#fig = plt.figure(2)
-#ax = fig.add_subplot(111)
-#cax = ax.pcolormesh(Qcorr, vmin=-1, vmax=1, cmap='RdBu_r')
-
-#fig.colorbar(cax)
-#fig.show()
-
-#raw_input() # Press 'Enter' to close

@@ -3,6 +3,9 @@
 # <dirn> to accompany outputted data from main run script and EnKF subroutine.
 #######################################################################
 
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 from datetime import datetime
 import os
 import importlib
@@ -22,7 +25,6 @@ def create_readme(dirn, config_file, i, j, m, l):
     ################################################################
     # IMPORT PARAMETERS FROM CONFIGURATION FILE
     ################################################################
-
     spec = importlib.util.spec_from_file_location("config", config_file)
     config = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(config)

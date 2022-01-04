@@ -7,7 +7,7 @@ from parameters import *
 from isen_func import *
 
 
-U_tr = np.load(str('/home/home02/mmlca/r1012_sat_modrsw_enkf/isenRSW_EnKF/test_model/U_array_Nk800.npy'))
+U_tr = np.load(str('/output/test_model/U_array_Nk800.npy'))
 
 fig, axes = plt.subplots(4, 1, figsize=(8,8))
 
