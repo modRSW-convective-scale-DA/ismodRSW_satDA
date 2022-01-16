@@ -37,7 +37,7 @@ n_ens = config.n_ens
 n_obs = config.n_obs
 
 
-## 1. CHOOSE ijkl. E.g., for test_enkf1111/ [i,j,k,l] = [0,0,0,0]
+### Derive position in parameter list (I,j,k,l) using the index passed via command line
 n_job = int(sys.argv[2])-1
 indices = list(itertools.product(list(range(0,len(loc))), list(range(0,len(add_inf))), list(range(0,len(rtpp))), list(range(0,len(rtps)))))
 I = indices[n_job][0]
@@ -45,10 +45,10 @@ j = indices[n_job][1]
 k = indices[n_job][2]
 l = indices[n_job][3]
 
-## 2. CHOOSE time: plot at assimilation cycle ii
-#ii = int(sys.argv[3])
-##################################################################
-# make fig directory (if it doesn't already exist)
+### 2. Choose time: plot at assimilation cycle ii
+ii = int(sys.argv[3])
+
+### Make fig directory (if it doesn't already exist)
 dirn = '{}{}/loc_{}_add_{}_rtpp_{}_rtps_{}'.format(outdir, IAU_dir, str(loc[I]),
                                                  str(add_inf[j]), str(rtpp[k]),
                                                  str(rtps[l]))# make fig directory (if it doesn't already exist)
@@ -114,10 +114,6 @@ sigr_mask = list(range(3*Nk_fc,4*Nk_fc))
 # compute means and deviations
 Xbar = np.empty(np.shape(X))
 Xdev = np.empty(np.shape(X))
-Xanbar = np.empty(np.shape(X))
-Xandev = np.empty(np.shape(X))
-Xdev_tr = np.empty(np.shape(X))
-Xandev_tr = np.empty(np.shape(X))
 Pf = np.empty((n_d,n_d,n_ens))
 Cf = np.empty((n_d,n_d,n_ens))
 
@@ -126,14 +122,10 @@ ONE = ONE/n_ens # NxN array with elements equal to 1/N
 for T in time_vec[1:]:
     Xbar[:,:,T] = np.dot(X[:,:,T],ONE) # fc mean
     Xdev[:,:,T] = X[:,:,T] - Xbar[:,:,T] # fc deviations from mean
-    Xdev_tr[:,:,T] = X[:,:,T] - X_tr[:,:,T] # fc deviations from truth
-    Xanbar[:,:,T] = np.dot(Xan[:,:,T],ONE) # an mean
-    Xandev[:,:,T] = Xan[:,:,T] - Xanbar[:,:,T] # an deviations from mean
-    Xandev_tr[:,:,T] = Xan[:,:,T] - X_tr[:,:,T] # an deviations from truth
 
 T = time_vec[int(sys.argv[3])]
 
-#covariance matrix
+### Calculation of  covariance matrix (with self-exclusion)
 for i in range(0,n_ens):
     Pf[:,:,i] = np.matmul(np.delete(Xdev[:,:,T],i,1), np.delete(Xdev[:,:,T],i,1).T)
     Pf[:,:,i] = Pf[:,:,i] / (n_ens - 2)
@@ -157,23 +149,7 @@ for ii in range(0,len(loc)):
     loc_rho = loc[ii] # loc_rho is form of lengthscale.
     rr = np.arange(0,loc_rho,loc_rho/Nk_fc) 
     taper[:,ii] = gaspcohn(rr)
-'''
-## print ' *** PLOT: localisation taper function ***'
-fig, axes = plt.subplots(1, 1, figsize=(5,5))
-for ii in range(0,len(loc)):
-    axes.plot(list(range(0,Nk_fc)), taper[:,ii], label='$L_{loc}$ = %s' %loc[ii])
-axes.set_ylim(0,1.02)
-axes.set_xlabel('x')
-#axes.set_title('Taper functions')
-axes.legend(loc = 7)
-axes.set_aspect(1./axes.get_data_ratio())
 
-name_f = "/loc.png"
-f_name_f = str(outdir+name_f)
-plt.savefig(f_name_f)
-print(' *** %s at time level %d saved to %s' %(name_f,T,outdir))
-
-'''
 vec = taper[:,I]
 rho = np.zeros((Nk_fc,Nk_fc))
 for ii in range(Nk_fc):
@@ -186,16 +162,16 @@ Pf_ave_loc = rho*Pf_ave
 Cf_ave_loc = rho*Cf_ave
 
 
+### The code below can plot either the taper functions or the covariance matrix
 print(' *** PLOT: forecast correlation matrix ***')
-#tick_loc = [0,0.5*Nk_fc,1.5*Nk_fc,2.5*Nk_fc,3.5*Nk_fc,800]
-#tick_lab = ['',r'$\sigma$',r'$u$',r'$v$',r'$r$','']
 tick_loc = [0,0.5*Nk_fc,1.5*Nk_fc,2.5*Nk_fc,3.5*Nk_fc,800]
 tick_lab = ['',r'$\sigma$',r'$u$',r'$v$',r'$r$','']
+
 fig, axes = plt.subplots(1, 2, figsize=(5,2.7))
-#fig, axes = plt.subplots(2, 2, figsize=(3,3))
 fig.suptitle('$L_{loc}$= '+str(loc[I]))
 fig.tight_layout(pad=0.8)
 
+### PLOT TAPER FUNCTIONS
 #for ii in range(0,len(loc)):
 #    axes[0].plot(list(range(0,Nk_fc)), taper[:,ii], linewidth=1, label='$L_{loc}$ = %s' %loc[ii])
 #axes[0].set_xticks([0,50,100,150,200])
@@ -209,24 +185,6 @@ fig.tight_layout(pad=0.8)
 #axes[0].set_aspect(1./axes[0].get_data_ratio())
 #axes[0].tick_params(width=0.1)
 
-invD=np.diag(1.0 / np.sqrt(np.diagonal(Pf_ave)))
-im=axes[0].imshow(np.matmul(invD, np.matmul(Pf_ave, invD)), cmap=plt.cm.RdBu,
-                    vmin=-1.0, vmax=1.0)
-axes[0].set_xticks(tick_loc)
-axes[0].set_yticks(tick_loc)
-axes[0].set_xticklabels(tick_lab,fontsize=10)
-axes[0].set_yticklabels(tick_lab,fontsize=10)
-#plt.setp(axes[1,0].get_xticklines(),visible=False) # invisible ticks
-#plt.setp(axes[1,0].get_yticklines(),visible=False)
-axes[0].hlines(199,0,799,color='black',linestyle='dashed')
-axes[0].hlines(399,0,799,color='black',linestyle='dashed')
-axes[0].hlines(599,0,799,color='black',linestyle='dashed')
-axes[0].vlines(199,0,799,color='black',linestyle='dashed')
-axes[0].vlines(399,0,799,color='black',linestyle='dashed')
-axes[0].vlines(599,0,799,color='black',linestyle='dashed')
-axes[0].set_title('Correlation matrix of $\mathbf{P}^f_e$',fontsize=10)
-#axes[0].set_title('corr. matrix of $\mathbf{P}^f_e$')
-
 #im=axes[1].imshow(rho,cmap=cm.Blues,vmin=0, vmax=1)
 #axes[1].set_xticks(tick_loc)
 #axes[1].set_yticks(tick_loc)
@@ -236,10 +194,25 @@ axes[0].set_title('Correlation matrix of $\mathbf{P}^f_e$',fontsize=10)
 #plt.setp(fig.axes[1].get_yticklines(),visible=False)
 #axes[1].set_title(r'$\rho$ with $L_{loc}$ = %s' %loc[I],fontsize=8)
 
+### PLOT COVARIANCE MATRIX
+invD=np.diag(1.0 / np.sqrt(np.diagonal(Pf_ave)))
+im=axes[0].imshow(np.matmul(invD, np.matmul(Pf_ave, invD)), cmap=plt.cm.RdBu,
+                    vmin=-1.0, vmax=1.0)
+axes[0].set_xticks(tick_loc)
+axes[0].set_yticks(tick_loc)
+axes[0].set_xticklabels(tick_lab,fontsize=10)
+axes[0].set_yticklabels(tick_lab,fontsize=10)
+axes[0].hlines(199,0,799,color='black',linestyle='dashed')
+axes[0].hlines(399,0,799,color='black',linestyle='dashed')
+axes[0].hlines(599,0,799,color='black',linestyle='dashed')
+axes[0].vlines(199,0,799,color='black',linestyle='dashed')
+axes[0].vlines(399,0,799,color='black',linestyle='dashed')
+axes[0].vlines(599,0,799,color='black',linestyle='dashed')
+axes[0].set_title('Correlation matrix of $\mathbf{P}^f_e$',fontsize=10)
+
 invD=np.diag(1.0 / np.sqrt(np.diagonal(Pf_ave_loc)))
 im=axes[1].imshow(np.matmul(invD, np.matmul(Pf_ave_loc, invD)), cmap=plt.cm.RdBu,
                     vmin=-1.0, vmax=1.0)
-#.title('Ensemble forecast error correlation matrix, $C^f_e$', fontsize = 20)
 axes[1].set_xticks(tick_loc)
 axes[1].set_yticks(tick_loc)
 axes[1].set_xticklabels(tick_lab,fontsize=10)
@@ -250,13 +223,8 @@ axes[1].hlines(599,0,799,color='black',linestyle='dashed')
 axes[1].vlines(199,0,799,color='black',linestyle='dashed')
 axes[1].vlines(399,0,799,color='black',linestyle='dashed')
 axes[1].vlines(599,0,799,color='black',linestyle='dashed')
-#plt.setp(fig.axes[1,1].get_xticklines(),visible=False) # invisible ticks
-#plt.setp(fig.axes[1,1].get_yticklines(),visible=False)
-#axes[1].set_title(r'$\rho \circ P^f_e$')
 axes[1].set_title('Correlation matrix of $\\rho \circ \mathbf{P}^f_e$',fontsize=10)
 
-#plt.axis('equal')
-#im.set_clim(-cpar,cpar)
 fig.subplots_adjust(right=0.8)
 cbar_ax = fig.add_axes([0.85, 0.2, 0.025, 0.6])
 cbar = fig.colorbar(im, cax=cbar_ax)
@@ -264,6 +232,6 @@ cbar.ax.tick_params(labelsize=8)
 
 name_f = "/T%d_Pf.png" %T
 f_name_f = str(figsdir+name_f)
-#f_name_f = 'taper_func.jpg'
 plt.savefig(f_name_f,dpi=300)
-#print(' *** %s at time level %d saved to %s' %(name_f,T,figsdir))
+
+print('Localisation matrix saved in: ',f_name_f)

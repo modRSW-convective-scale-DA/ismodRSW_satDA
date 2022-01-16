@@ -1,15 +1,6 @@
 #######################################################################
-# Ensemble forecasts for 1.5D SWEs with rain variable and topography
+# Ensemble forecasts for the ismodRSW model to compute doubling times
 #######################################################################
-
-'''
-    25.09.2016
-    
-    Script runs ensemble forecasts, initialised from analysed ensembles at a given time.
-    
-    Specify: directory, ijk, T0, Tfc
-    
-    '''
 
 ##################################################################
 # GENERIC MODULES REQUIRED
@@ -27,7 +18,6 @@ from datetime import datetime
 ##################################################################
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
-
 from f_ismodRSW import make_grid, time_step, ens_forecast
 from create_readme import create_readme
 from isen_func import interp_sig2etab, M_int
@@ -70,6 +60,7 @@ theta1 = config.theta1
 theta2 = config.theta2
 Z0 = config.Z0
 U_scale = config.U_scale
+table_file_name =  config.table_file_name
 NIAU = config.NIAU
 U_relax = config.U_relax
 tau_rel = config.tau_rel
@@ -77,7 +68,6 @@ tau_rel = config.tau_rel
 ###################################################################
 # Read experiment index from command line and split it into indeces
 ###################################################################
-
 n_job = int(sys.argv[2])-1
 indices = list(itertools.product(list(range(0,len(loc))), list(range(0,len(add_inf))), list(range(0,len(rtpp))), list(range(0,len(rtps)))))
 i = indices[n_job][0]
@@ -87,6 +77,7 @@ l = indices[n_job][3]
 
 ##################################################################
 # make EDT directory (if it doesn't already exist)
+##################################################################
 
 dirn = '{}/loc_{}_add_{}_rtpp_{}_rtps_{}'.format(outdir, str(loc[i]),
                                                  str(add_inf[j]), str(rtpp[k]),
@@ -145,7 +136,7 @@ X_fc_array = np.empty([n_d,n_ens,Tfc+1])
 X_fc_array[:,:,0] = X0
 
 ### LOAD LOOK-UP TABLE
-h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
+h5_file = h5py.File('inversion_tables/'+table_file_name,'r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ### Convection and rain thresholds
@@ -155,7 +146,6 @@ Mc = M_int(etab_c,0.,R,kgas,theta1,theta2,eta0,g,Z0,U_scale)
 ##################################################################
 #  Load initial conditions
 ##################################################################
-
 print(' ')
 print('---------------------------------------------------')
 print('---------      ICs: load from saved data     ---------')
@@ -175,46 +165,6 @@ print(np.shape(U0_tr))
 
 ### Define relaxation solution
 U_rel = U_relax(Neq,Nk_fc,L,V,xc_fc,U_tr_array[:,0::dres,0])
-
-### Forecast ic 
-#U0_fc, B = ic(x_fc,Nk_fc,Neq,H0,L,A,V) # control IC to be perturbed
-
-#U0ens = np.empty([Neq,Nk_fc,n_ens])
-
-#print('Initial ensemble perurbations:')
-#print('sig_ic = [sig_h, sig_hu, sig_hr] =', sig_ic)
-
-# Generate initial ensemble
-#for jj in range(0,Neq):
-#    for N in range(0,n_ens):
-#        # add sig_ic to EACH GRIDPOINT
-#        U0ens[jj,:,N] = U0_fc[jj,:] + sig_ic[jj]*np.random.randn(Nk_fc)
-
-#U0ens = np.empty([Neq,Nk_fc,n_ens])
-#for N in range(0,n_ens):
-#    U0ens[:,:,N] = X0[:,N].reshape(Neq,Nk_fc)
-
-#print(' ')
-#print('Check ICs...')
-#print(' ')
-
-#fig, axes = plt.subplots(3, 1, figsize=(8,8))
-#axes[0].plot(xc_fc, U0ens[0,:,:]+B.reshape(len(xc_fc),1), 'b')
-#axes[0].plot(xc_fc, U0_tr[0,:]+B.reshape(len(xc_fc),1), 'g')
-#axes[0].plot(xc_fc, B, 'k', linewidth=2.)
-#axes[0].set_ylabel('$h_0(x)$',fontsize=18)
-#axes[0].set_ylim([0,np.max(U0ens[0,:,:])])
-#axes[1].plot(xc_fc, U0ens[1,:,:], 'b')
-#axes[1].plot(xc_fc, U0_tr[1,:], 'g')
-#axes[1].set_ylabel('$hu_0(x)$',fontsize=18)
-#axes[2].plot(xc_fc, U0ens[2,:,:], 'b')
-#axes[2].plot(xc_fc, U0_tr[2,:], 'g')
-#axes[2].set_ylabel('$hr_0(x)$',fontsize=18)
-#axes[2].set_xlabel('$x$',fontsize=18)
-#plt.interactive(True)
-#plt.show() # use block=False?
-#exit()
-#np.save('test_model/U0ens',U0ens)
 
 ##################################################################
 #  Integrate ensembles forward in time until obs. is available   #

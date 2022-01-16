@@ -49,6 +49,7 @@ eta0 = config.eta0
 Z0 = config.Z0
 U_scale = config.U_scale
 k = config.k
+table_file_name = config.table_file_name
 model_noise = config.model_noise
 Nhr = config.Nhr
 Q_FUNC = config.Q_FUNC
@@ -76,7 +77,7 @@ def Q_nhr():
     B = np.load(str(outdir + '/B_tr.npy')) # truth
     U_tr = np.load(str(outdir + '/U_tr_array_2xres_'+ass_freq+'.npy')) # truth
     ### LOAD LOOK-UP TABLE
-    h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
+    h5_file = h5py.File('inversion_tables/'+table_file_name,'r')
     h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
     fc_grid = make_grid(Nk_fc, L) # forecast
     Kk_fc = fc_grid[0]

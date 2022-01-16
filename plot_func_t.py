@@ -1,19 +1,21 @@
 ##################################################################
-#--------------- Plotting routines for saved data ---------------
+### Plotting routines for saved data: time series
 ##################################################################
 '''
     Plotting routine: <plot_func_t>
     
-    Loads saved data for a specific config file and produces plots as a function of time for OID, spr v err, and CRPS (i.e., domain-averaged time series). To use, specify (1) path_to_config_file, (2) integer corresponding to i-th simulation.
+    Loads saved data for a specific config file and produces plots as a function of time for OID, spr v err, and CRPS (i.e., domain-averaged time series). To use, specify (1) path_to_config_file, (2) integer corresponding to i-th simulation, (3)-(4) lead times to plot.
     
     NOTE: Any changes to the outer loop parameters should be replicated here too.
     
     NOTE: currently saves as .png files
 
-    CALL WITH "python plot_func_t.py <config_file> <i>
+    CALL WITH "python plot_func_t.py <config_file> <lead_time_1> <lead_time_2>
     '''
 
-## generic modules 
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import os
 import errno
 import importlib.util
@@ -25,11 +27,11 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import sys
 
-## custom modules
-#from parameters import *
+##################################################################
+# CUSTOM FUNCTIONS AND MODULES REQUIRED
+##################################################################
 from crps_calc_fun import crps_calc
 
-##################################################################
 ##################################################################
 # IMPORT PARAMETERS FROM CONFIGURATION FILE
 ##################################################################
@@ -52,7 +54,7 @@ n_ens = config.n_ens
 spin_up = config.spin_up
 ass_freq = config.ass_freq
 
-###################################################################
+### Derive position in parameter list (i,j,k,l) using the index passed via command line
 n_job = int(sys.argv[2])-1
 print(n_job)
 indices = list(itertools.product(list(range(0,len(loc))), list(range(0,len(add_inf))), list(range(0,len(rtpp))), list(range(0,len(rtps)))))
@@ -61,10 +63,11 @@ i = indices[n_job][0]
 j = indices[n_job][1] 
 k = indices[n_job][2]
 l = indices[n_job][3]
-###################################################################
+
+### Define lead times
 lead_times=[int(sys.argv[3]),int(sys.argv[4])]
 
-# make fig directory (if it doesn't already exist)
+### Make fig directory (if it doesn't already exist)
 dirn = '{}/loc_{}_add_{}_rtpp_{}_rtps_{}'.format(outdir, str(loc[i]),
                                                  str(add_inf[j]), str(rtpp[k]),
                                                  str(rtps[l]))
@@ -76,13 +79,13 @@ except OSError as exception:
     if exception.errno != errno.EEXIST:
         raise
 
-## load data
+### Load data
 print('*** Loading saved data... ')
 Xan = np.load(str(dirn+'/Xan_array.npy')) # an ensembles
 Xforec = np.load(str(dirn+'/X_forec.npy')) # long term forecast
 OI = np.load(str(dirn+'/OI.npy')) # OI
 
-# LOAD TRUTH TRAJECTORY
+### LOAD TRUTH TRAJECTORY
 U_tr = np.load(str(outdir+'/U_tr_array_2xres_'+ass_freq+'.npy'))
 
 # Manipulate U_tr to get X_tr
@@ -98,7 +101,6 @@ for kk in range(0,Nmeas+Nforec):
 # print shape of data arrays to terminal (sanity check)
 print(' Check array shapes...')
 np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
-#print('X_array shape (n_d,n_ens,T)      : ', np.shape(X))
 print('X_tr_array shape (n_d,1,T)       : ', np.shape(X_tr))
 print('Xan_array shape (n_d,n_ens,T)    : ', np.shape(Xan))
 print('X_forec array shape (n_d,n_ens,T,N_forec): ', np.shape(Xforec))
@@ -312,10 +314,10 @@ print(' PLOT : RMS ERRORS vs SPREAD')
 print(' ')
 ft=16
 
-axlim0 = 0.02#np.max(np.maximum(spr_fc[0,:-lead_times[-1],len(lead_times)-1], rmse_fc[0,:-lead_times[-1],len(lead_times)-1]))
-axlim1 = 0.10#np.max(np.maximum(spr_fc[1,:-lead_times[-1],len(lead_times)-1], rmse_fc[1,:-lead_times[-1],len(lead_times)-1]))
-axlim2 = 0.06#np.max(np.maximum(spr_fc[2,:-lead_times[-1],len(lead_times)-1], rmse_fc[2,:-lead_times[-1],len(lead_times)-1]))
-axlim3 = 0.08#np.max(np.maximum(spr_fc[3,:-lead_times[-1],len(lead_times)-1], rmse_fc[3,:-lead_times[-1],len(lead_times)-1]))
+axlim0 = 0.02 
+axlim1 = 0.10 
+axlim2 = 0.06 
+axlim3 = 0.08 
 time_vec = list(range(0,t_an+lead_times[len(lead_times)-1]))
 
 print(spr_fc[0, :len(time_vec)-1, 1])
@@ -330,14 +332,12 @@ for ii in range(len(lead_times)):
         axes[0].set_ylabel('$\sigma$',fontsize=18)
         axes[0].text(len(lead_times)+2, (1.08+ii/10.)*axlim0, '$(SPR,RMSE)_{fc+'+str(lead_times[ii])+'} = (%.3g,%.3g)$' %(spr_fc[0,spin_up:len(time_vec)-lead_times[ii],ii].mean(axis=-1),rmse_fc[0,spin_up:len(time_vec)-lead_times[ii],ii].mean(axis=-1)), fontsize=ft, color=col_vec[ii])
         axes[0].set_ylim([0,1.3*axlim0])
-        #axes[0].legend(loc = 4, fontsize='small')
         axes[1].plot(time_vec[lead_times[ii]:(Nmeas+lead_times[ii])], spr_fc[1,:len(time_vec)-lead_times[ii], ii], color=col_vec[ii], label=str('fc+'+str(lead_times[ii])+' spread'))
         axes[1].set_ylabel('$u$',fontsize=18)
         axes[1].text(len(lead_times)+2, (1.08+ii/10.)*axlim1, '$(SPR,RMSE)_{fc+'+str(lead_times[ii])+'} = (%.3g,%.3g)$' %(spr_fc[1,spin_up:len(time_vec)-lead_times[ii],ii].mean(axis=-1),rmse_fc[1,spin_up:len(time_vec)-lead_times[ii],ii].mean(axis=-1)), fontsize=ft, color=col_vec[ii])
         axes[1].set_ylim([0,1.3*axlim1])
         axes[2].plot(time_vec[lead_times[ii]:(Nmeas+lead_times[ii])], spr_fc[2,:len(time_vec)-lead_times[ii], ii], color=col_vec[ii], label=str('fc+'+str(lead_times[ii])+' spread'))
         axes[2].set_ylabel('$v$',fontsize=18)
-#        axes[2].set_xlabel('Assim. time $T$',fontsize=14)
         axes[2].text(len(lead_times)+2, (1.08+ii/10.)*axlim2, '$(SPR,RMSE)_{fc+'+str(lead_times[ii])+'} = (%.3g,%.3g)$' %(spr_fc[2,spin_up:len(time_vec)-lead_times[ii],ii].mean(axis=-1),rmse_fc[2,spin_up:len(time_vec)-lead_times[ii],ii].mean(axis=-1)), fontsize=ft, color=col_vec[ii])
         axes[2].set_ylim([0,1.3*axlim2])
         axes[3].plot(time_vec[lead_times[ii]:(Nmeas+lead_times[ii])], spr_fc[3,:len(time_vec)-lead_times[ii], ii], color=col_vec[ii], label=str('fc+'+str(lead_times[ii])+' spread'))
@@ -428,5 +428,3 @@ plt.savefig(f_name)
 print(' ')
 print(' *** %s saved to %s' %(name,figsdir))
 print(' ')
-
-###########################################################################

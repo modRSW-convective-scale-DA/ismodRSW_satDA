@@ -3,7 +3,6 @@
 #######################################################################
 
 ''' 
-
 Module contains numerous functions for the numerical inegration of the modRSW model:
 > make_grid            : makes mesh for given length and gridcell number
 > NCPflux4d             : calculates numerical flux as per the theory of Kent et al. 2017
@@ -13,14 +12,20 @@ Module contains numerous functions for the numerical inegration of the modRSW mo
 > heaviside             : vector-aware implementation of heaviside (also works for scalars).
 > ens_forecast_topog    : for use in parallel ensemble forecasting
 '''
-    
+
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################    
 import math as m
 import numpy as np
+
+##################################################################
+# CUSTOM FUNCTIONS AND MODULES REQUIRED
+##################################################################
 from isen_func import interp_sig2etab, dMdsig, M_int
 
 ##################################################################
-#'''-------------- Create mesh at given resolution --------------'''
-##################################################################  
+### Create mesh at given resolution
 
 # domain [0,L]
 def make_grid(Nk,L):
@@ -40,10 +45,8 @@ def make_grid_2(Nk,L):
     return grid
 
 ##################################################################
-#'''----------------- NCP flux function -----------------'''
-##################################################################        
-#@jit
-#def NCPflux4d(UL,UR,sig_r,sig_c,c2,beta,ML,MR,Mc,dMdsigL,dMdsigR):
+### NCP flux function
+
 def NCPflux4d(sigL,sigR,uL,uR,vL,vR,rL,rR,sig_r,sig_c,c2,beta,SL,SR,ML,MR,Mc,dMdsigL,dMdsigR,a,b,h1,h2,h3,h4,h5):
 
 ### INPUT ARGS:
@@ -104,18 +107,8 @@ def NCPflux4d(sigL,sigR,uL,uR,vL,vR,rL,rR,sig_r,sig_c,c2,beta,SL,SR,ML,MR,Mc,dMd
     return Flux, VNC
 
 ##################################################################
-#'''----------------- Heaviside step function -----------------'''
-##################################################################
-def heaviside(x):
-    """
-    Vector-aware implemenation of the Heaviside step function.
-    """
-    return int(x > 0)
+### Function to compute a stable timestep
 
-##################################################################
-#'''--------- Compute stable timestep ---------'''
-##################################################################
-#@jit
 def time_step(U,Kk,cfl,dM_dsig,cc2,beta):
 ### INPUT ARGS:
 # U: array of variarible values at t

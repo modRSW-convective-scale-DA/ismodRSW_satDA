@@ -1,3 +1,10 @@
+##################################################################
+### Function to plot the Hovmoller plot of the nature run
+##################################################################
+
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -14,28 +21,24 @@ spec.loader.exec_module(config)
 outdir = config.outdir
 
 ### IMPORT DATA ###
-U = np.load(outdir+'/U_hovplt.npy') 
+U = np.load(outdir+'/nature_run/U_hovplt.npy') 
 x = np.arange(0.,1.,0.0025)
-t = np.load(outdir+'/t_hovplt.npy')
+t = np.load(outdir+'/nature_run/t_hovplt.npy')
 
 print(t.shape,x.shape)
-print(t[46940])
+print(t[46940]) # the index is set depending on the y-axis
 
 # Start figure
 fig = plt.figure(figsize=(10,10)) 
 
 # Top plot for density
 ax1 = fig.add_subplot(221)
-#siglevs = np.array([0.,0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.3, 0.4, 0.5])
 siglevs = np.array([0.,0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3])
-#clcol = plt.cm.Greys(np.linspace(0.,0.5,20))
-#racol = plt.cm.YlOrBr(np.linspace(0.,1.,68))
-#white = np.tile([1.,1.,1.,1.],(25,1))
 clcol = plt.cm.Greys(np.linspace(0.,0.5,40))
 racol = plt.cm.YlOrBr(np.linspace(0.,1.,15))
 white = np.tile([1.,1.,1.,1.],(20,1))
 cols = np.vstack((white,clcol,racol))
-cm = mpl.colors.LinearSegmentedColormap.from_list('pippo', cols)
+cm = mpl.colors.LinearSegmentedColormap.from_list('3colors_colormap', cols)
 cv1 = ax1.contourf(x,t[:46940:20],U[0,:,:46940:20].T,siglevs,cmap=cm)
 cs1 = ax1.contour(x,t[:46940:20],U[0,:,:46940:20].T,siglevs,colors='k',linewidths=0.1)
 cbar = plt.colorbar(cv1,ax=ax1,ticks=siglevs,orientation='vertical')

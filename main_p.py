@@ -32,7 +32,6 @@ warnings.filterwarnings("error")
 ##################################################################
 # CUSTOM FUNCTIONS AND MODULES REQUIRED
 ##################################################################
-
 from f_ismodRSW import make_grid 
 from f_enkf_ismodRSW import generate_truth
 from create_readme import create_readme

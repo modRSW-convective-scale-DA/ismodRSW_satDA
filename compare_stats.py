@@ -1,15 +1,10 @@
-##################################################################
-# Summary diagnostics of idealised enkf experiments
-# inc. summary plots a la Poterjoy and Zhang
-##################################################################
+########################################################################
+# Script that plot a summary diagnostics of idealised EnKF experiments 
+########################################################################
 
-'''
-    Each directory has i*j*k experiments with different parameter combinations. This script produces summary plots for comparison. Assume only one RTPP value
-when plotting.
-    
-    '''
-
-## generic modules
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import os
 import errno
 import itertools
@@ -24,7 +19,9 @@ import matplotlib.patches as patches
 from matplotlib import cm
 from mpl_toolkits.axes_grid1 import AxesGrid
 
-## custom modules
+##################################################################
+# CUSTOM FUNCTIONS AND MODULES REQUIRED
+##################################################################
 from analysis_diag_stats import ave_stats_an, ave_stats_fc
 
 ##################################################################
@@ -76,18 +73,19 @@ def summary_plot(x, var_name, graph_title, axis_labels, values, minval, maxval, 
     if (var_name == 'sprrmse_ratio'): 
         indint = np.dstack(np.where((x>0.8) & (x<1.2)))
         print(indint)
-    if (var_name == 'rmse'):
-        rtps = np.array((4,5,6,5,6,4,5,7,4,7,6,6))
-        gama = np.array((3,4,0,2,2,3,3,3,4,1,2,5))
-        lloc = np.array((0,0,1,1,1,1,2,2,2,3,3,3))
-        list_rmse = np.dstack((rtps,gama,lloc))
-        print(list_rmse)
-    if (var_name == 'crps'):
-        rtps = np.array((4,5,6,5,6,4,5,7,4,7,6,6))
-        gama = np.array((3,4,0,2,2,3,3,3,4,1,2,5))
-        lloc = np.array((0,0,1,1,1,1,2,2,2,3,3,3))
-        list_crps = np.dstack((rtps,gama,lloc))
-        print(list_crps)
+# Commented out until after establishing which experiments have the lowest rmse/crps
+#    if (var_name == 'rmse'):
+#        rtps = np.array((4,5,6,5,6,4,5,7,4,7,6,6))
+#        gama = np.array((3,4,0,2,2,3,3,3,4,1,2,5))
+#        lloc = np.array((0,0,1,1,1,1,2,2,2,3,3,3))
+#        list_rmse = np.dstack((rtps,gama,lloc))
+#        print(list_rmse)
+#    if (var_name == 'crps'):
+#        rtps = np.array((4,5,6,5,6,4,5,7,4,7,6,6))
+#        gama = np.array((3,4,0,2,2,3,3,3,4,1,2,5))
+#        lloc = np.array((0,0,1,1,1,1,2,2,2,3,3,3))
+#        list_crps = np.dstack((rtps,gama,lloc))
+#        print(list_crps)
     if len(indmin) != 3:
         raise ValueError('summary_plot requires a rank 3 data array')
     if len(axis_labels) != 3:
@@ -97,10 +95,8 @@ def summary_plot(x, var_name, graph_title, axis_labels, values, minval, maxval, 
 
     x_dim = np.shape(x)
     n_plots = x_dim[2]
-#    if n_plots % 2 != 0:
-#        raise ValueError('an even number of elements is required in the '
-#                         'third rank of the data array')
-   # Produce pages of at most 2 x 2 plots#
+   
+    # Produce pages of at most 2 x 2 plots#
     inf = int(np.floor(np.sqrt(n_plots)))
     sup = int(np.ceil(np.sqrt(n_plots)))
     a = int(inf*inf)
@@ -121,14 +117,6 @@ def summary_plot(x, var_name, graph_title, axis_labels, values, minval, maxval, 
     axlist = AxesGrid(fig, 111, nrows_ncols=(n_rows, n_cols), axes_pad=(0.25,0.3),
                       cbar_location='right', cbar_mode='single',
                       share_all=True)
-    # Produce pages of at most 2 x 2 plots
-#    n_rows = int(np.ceil(0.5 * n_plots))
-#    fig = plt.figure()
-#    fig.suptitle('{} (minimum = {:.3f})'.format(graph_title, x[indmin]),
-#                 fontsize='large')
-#    axlist = AxesGrid(fig, 111, nrows_ncols=(n_rows, 2), axes_pad=0.25,
-#                      cbar_location='right', cbar_mode='single',
-#                      share_all=True)
 
     for i, ax in enumerate(axlist):
         #mymap = cm.YlOrBr
@@ -158,17 +146,14 @@ def summary_plot(x, var_name, graph_title, axis_labels, values, minval, maxval, 
                 ax.add_patch(patches.Rectangle((j[1],j[0]),1.,1.,edgecolor='r',fill=False))
 
         # Highlight the cells with low values of RMSE and CRPS
-        if var_name == 'rmse' and np.any(list_rmse[:,:,2]==i):
-            for j in list_rmse[np.where(list_rmse[:,:,2]==i)]:
-                ax.add_patch(patches.Rectangle((j[1],j[0]),1.,1.,edgecolor='black',fill=False))
-        if var_name == 'crps' and np.any(list_crps[:,:,2]==i):
-            for j in list_crps[np.where(list_crps[:,:,2]==i)]:
-                ax.add_patch(patches.Rectangle((j[1],j[0]),1.,1.,edgecolor='black',fill=False))
+        # To be comment out after revising list_rmse
+#        if var_name == 'rmse' and np.any(list_rmse[:,:,2]==i):
+#            for j in list_rmse[np.where(list_rmse[:,:,2]==i)]:
+#                ax.add_patch(patches.Rectangle((j[1],j[0]),1.,1.,edgecolor='black',fill=False))
+#        if var_name == 'crps' and np.any(list_crps[:,:,2]==i):
+#            for j in list_crps[np.where(list_crps[:,:,2]==i)]:
+#                ax.add_patch(patches.Rectangle((j[1],j[0]),1.,1.,edgecolor='black',fill=False))
 
-        # Highlight the cell with the minimum value.
-#        if i == indmin[2]:
-#            ax.plot(indmin[1]+0.5, indmin[0]+0.5, color='blue', marker='o',
-#                    markersize=10)
     plt.savefig(filnam)
 
 ##################################################################
@@ -344,30 +329,6 @@ for m in range(Neq+2):
                  [rtps, add_inf, loc], minval, maxval, str(figsdir + '/oi_'+var_oi[m]+'.pdf'),cm.BrBG)
 
 ##################################################################
-print(' *** PLOT: SPREAD-RMSE DIFFERENCE ***')
-##################################################################
-
-# Compute min/max for SPREAD-RMSE.
-#for n in range(len(lead_times)):
-    #x = np.ma.masked_invalid([sprrmse_diff_fc[:,:,:,:,n], sprrmse_diff_an])
-
-# Choose the colour map limits.
-#minval = np.around(np.amin(x),
-#                   decimals=2)
-#maxval = np.around(np.amax(x),
-#                   decimals=2)
-#    minval = -0.08
-#    maxval = 0.08
-
-#    summary_plot(np.ma.masked_invalid(np.swapaxes(sprrmse_diff_fc[:,:,0,:,n], 0, 2)),
-#             'Forecast +'+str(lead_times[n])+'h SPR-RMSE', ['RTPS', '$\gamma_a$', '$L_{loc}$'],
-#             [rtps, add_inf, loc], minval, maxval, str(figsdir + '/sprrmse_diff_fc_+'+str(lead_times[n])+'.pdf'),cm.BrBG)
-
-#summary_plot(np.ma.masked_invalid(np.swapaxes(sprrmse_diff_an[:,:,0,:], 0, 2)),
-#             'Analysis SPR-RMSE', ['RTPS', '$\gamma_a$', '$L_{loc}$'],
-#             [rtps, add_inf, loc], minval, maxval, str(figsdir + '/sprrmse_diff_an.pdf'),cm.BrBG)
-
-##################################################################
 print(' *** PLOT: SPREAD TO RMSE RATIO ***')
 ##################################################################
 
@@ -386,38 +347,3 @@ for m in range(Neq+1):
     summary_plot(np.ma.masked_invalid(np.swapaxes(sprrmse_ratio_an[m,:,:,0,:], 0, 2)),'sprrmse_ratio',
                  'Analysis ('+var[m]+') SPR/RMSE', ['RTPS', '$\gamma_a$', '$L_{loc}$'],
                  [rtps, add_inf, loc], minval, maxval, str(figsdir + '/sprrmse_ratio_'+var[m]+'_an.pdf'),cm.BrBG)
-
-##################################################################
-#print(' *** PLOT: FORECAST-ANALYSY RMSE***')
-##################################################################
-# Compute min/max for SPREAD-RMSE.
-#x = np.ma.masked_invalid(fcan_diff_rmse)
-
-# Choose the colour map limits.
-#minval = np.around(np.amin(x),
-#                   decimals=int(abs(np.floor(np.log10(np.amin(x))))))
-#maxval = np.around(np.amax(x),
-  #                 decimals=int(abs(np.floor(np.log10(np.amax(x))))))
-#minval = 0.
-
-#summary_plot(np.ma.masked_invalid(np.swapaxes(fcan_diff_rmse[:,:,0,:], 0, 2)),
- #            'Forecast-analysis RMSE', ['RTPS', '$\gamma_a$', '$L_{loc}$'],
- #            [rtps, add_inf, loc], minval, maxval, str(figsdir + '/fcan_diff_rmse.pdf'),cm.bone)
-
-##################################################################
-#print(' *** PLOT: FORECAST-ANALYSY CRPS***')
-##################################################################
-# Compute min/max for SPREAD-RMSE.
-#x = np.ma.masked_invalid(fcan_diff_crps)
-
-# Choose the colour map limits.
-#minval = np.around(np.amin(x),
-#                   decimals=int(abs(np.floor(np.log10(np.amin(x))))))
-#maxval = np.around(np.amax(x),
- #                  decimals=int(abs(np.floor(np.log10(np.amax(x))))))
-
-#minval = 0.
-
-#summary_plot(np.ma.masked_invalid(np.swapaxes(fcan_diff_crps[:,:,0,:], 0, 2)),
-#             'Forecast-analysis CRPS', ['RTPS', '$\gamma_a$', '$L_{loc}$'],
-#             [rtps, add_inf, loc], minval, maxval, str(figsdir + '/fcan_diff_crps.pdf'),cm.bone)

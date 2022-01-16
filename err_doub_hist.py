@@ -1,13 +1,13 @@
 ##################################################################
-#--------- Plot err doub time histogram from EFS stats -----------
+### This script plots the error doubling time histograms from EFS stats
 ##################################################################
 '''
     Plots error doubling time histograms from saved data <err_doub_Tn.npy>
     
     '''
-
-
-## generic modules
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import os
 import errno
 import importlib.util
@@ -31,10 +31,7 @@ rtps = config.rtps
 Neq = config.Neq
 n_ens = config.n_ens
 
-###################################################################
-# Read experiment index from command line and split it into indeces
-###################################################################
-
+### Derive position in parameter list (i,j,k,l) using the index passed via command line
 n_job = int(sys.argv[2])-1
 indices = list(itertools.product(list(range(0,len(loc))), list(range(0,len(add_inf))), list(range(0,len(rtpp))), list(range(0,len(rtps)))))
 i = indices[n_job][0]
@@ -42,15 +39,14 @@ j = indices[n_job][1]
 k = indices[n_job][2]
 l = indices[n_job][3]
 
-##################################################################
-# make fig directory (if it doesn't already exist)
+### Make fig directory (if it doesn't already exist)
 dirn = '{}/loc_{}_add_{}_rtpp_{}_rtps_{}'.format(outdir, str(loc[i]),
                                                  str(add_inf[j]), str(rtpp[k]),
                                                  str(rtps[l]))
 dirEDT = str(dirn+'/EDT')
 figsdir = str(dirEDT+'/figs')
 
-#check if dir exixts, if not make it
+### Check if dir exixts, if not make it
 try:
     os.makedirs(figsdir)
 except OSError as exception:
@@ -59,12 +55,11 @@ except OSError as exception:
 
 T0 = list(range(1,61))
 err_doub = np.empty((Neq,len(T0)*n_ens))
-#
+
 for i in range(1,len(T0)+1):
     err_doub[:,(i-1)*n_ens:i*n_ens] = np.load(str(dirn+'/err_doub_T'+str(T0[i-1]))+'.npy')
-#
 
-###############################################################################
+
 print(' ')
 print(' PLOT : Error-doubling time histograms...')
 print(' ')
@@ -121,7 +116,3 @@ plt.savefig(f_name)
 print(' ')
 print(' *** %s saved to %s' %(name,figsdir))
 print(' ')
-
-#np.isnan(X[0,:]).sum()
-#print np.sum(hist)
-###########################################################################

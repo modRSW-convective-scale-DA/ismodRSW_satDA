@@ -57,6 +57,7 @@ eta0 = config.eta0
 Z0 = config.Z0
 U_scale = config.U_scale
 k = config.k
+table_file_name = config.table_file_name
 Ro = config.Ro
 tau_rel = config.tau_rel
 tmax = config.tmax
@@ -120,8 +121,7 @@ f_path_name = str(outdir+'/U_tr_array_2xres_'+ass_freq+'.npy')
 f_obs_name = str(outdir+'/Y_obs_2xres_'+ass_freq+'.npy')
 
 ### Load look-up table for conversion from pseudo-density to non-dimensional pressure
-file_name = 'sigma_eta_theta2_'+str(int(theta2))+'_theta1_'+str(int(theta1))+'_eta0_'+str(eta0)+'_Z0_'+str(int(Z0))+'_k_'+str(round(k,2))+'.hdf'
-h5_file = h5py.File('inversion_tables/'+file_name,'r')
+h5_file = h5py.File('inversion_tables/'+table_file_name,'r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
 ### Check whether truth trajectory already exsists, otherwise create new

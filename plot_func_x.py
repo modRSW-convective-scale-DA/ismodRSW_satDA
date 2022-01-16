@@ -1,21 +1,23 @@
 ##################################################################
-#--------------- Plotting routines for saved data ---------------
+### Plotting routines for saved data - Snapshots of analysis and forecast valid at the same time
 ##################################################################
 '''
 Plotting routine: <plot_func_x>
 
-Loads saved data in specific directories and produces plots as a function of x at a given assimilation time. To use, specify (1) dir_name, (2) combination of parameters ijk, (3) time level T = time_vec[ii], i.e., choose ii.
+Loads saved data in specific directories and produces plots as a function of x at a given assimilation time.
 
 NOTE: Any changes to the outer loop parameters should be replicated here too.
 
 NOTE: currently saves as .png files
 
-CALL WITH: 'python plot_func_x <i> <j> <k>'
+USE: python3 plot_func_x.py <config_file> <index> <analysis_step>
 
 Assumes only one RTPP value.
 '''
 
-# generic modules 
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import matplotlib
 matplotlib.use('Agg')
 import h5py
@@ -28,10 +30,11 @@ import sys
 import scipy.special as sp   
 import itertools
 
+##################################################################
+# CUSTOM FUNCTIONS AND MODULES REQUIRED
+##################################################################
 from crps_calc_fun import crps_calc
 from isen_func import *
-
-##################################################################
 
 ##################################################################
 # IMPORT PARAMETERS FROM CONFIGURATION FILE
@@ -65,7 +68,6 @@ n_obs_u = config.n_obs_u
 n_obs_v = config.n_obs_v
 n_obs_r = config.n_obs_r
 n_obs_grnd = config.n_obs_grnd
-obs_dens = config.o_d
 obs_T_d = config.obs_T_d
 obs_u_d = config.obs_u_d
 obs_v_d = config.obs_v_d
@@ -79,8 +81,9 @@ sigv_obs_mask = config.sigv_obs_mask
 sigr_obs_mask = config.sigr_obs_mask
 kgas = config.k
 ass_freq = config.ass_freq
+table_file_name = config.table_file_name
 
-## 1. CHOOSE ijkl. E.g., for test_enkf1111/ [i,j,k,l] = [0,0,0,0]
+### Derive position in parameter list (i,j,k,l) using the index passed via command line
 n_job = int(sys.argv[2])-1
 indices = list(itertools.product(list(range(0,len(loc))), list(range(0,len(add_inf))), list(range(0,len(rtpp))), list(range(0,len(rtps)))))
 i = indices[n_job][0]
@@ -88,10 +91,10 @@ j = indices[n_job][1]
 k = indices[n_job][2]
 l = indices[n_job][3]
 
-## 2. CHOOSE time: plot at assimilation cycle ii
+### Choose time: plot at assimilation cycle ii
 ii = int(sys.argv[3])
-##################################################################
 
+### Make fig directory (if it doesn't already exist)
 dirn = '{}/loc_{}_add_{}_rtpp_{}_rtps_{}'.format(outdir, str(loc[i]), str(add_inf[j]), str(rtpp[k]), str(rtps[l]))
 figsdir = str(dirn+'/figs')
 
@@ -101,11 +104,11 @@ except OSError as exception:
     if exception.errno != errno.EEXIST:
         raise
 
-### load look-up table
-h5_file = h5py.File('inversion_tables/sigma_eta_theta2_291_theta1_311_eta0_0.48_Z0_6120_k_0.29.hdf','r')
+### Load look-up table
+h5_file = h5py.File('inversion_tables/'+table_file_name,'r')
 h5_file_data = h5_file.get('sigma_eta_iversion_table')[()]
 
-## load data
+### Load data
 print('*** Loading saved data... ')
 B = np.load(str(dirn+'/B.npy')) #topography
 X = np.load(str(dirn+'/X_array.npy')) # fc ensemble
@@ -114,7 +117,7 @@ Xan = np.load(str(dirn+'/Xan_array.npy')) # an ensembles
 Y_obs = np.load(str(outdir+'/Y_obs_2xres_'+ass_freq+'.npy')) # obs ensembles
 OI = np.load(str(dirn+'/OI.npy')) # OI
 
-# print shape of data arrays to terminal (sanity check)
+### Print shape of data arrays to terminal (sanity check)
 print(' Check array shapes...')
 np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
 print('X_array shape (n_d,n_ens,T)      : ', np.shape(X)) 
@@ -122,9 +125,10 @@ print('X_tr_array shape (n_d,1,T)       : ', np.shape(X_tr))
 print('Xan_array shape (n_d,n_ens,T)    : ', np.shape(Xan)) 
 print('Y_obs shape (p,T-1)    : ', np.shape(Y_obs)) 
 print(' ')
+
 ##################################################################
 
-# determine parameters from loaded parameters
+### Determine parameters from loaded parameters
 xc = np.linspace(Kk_fc/2,L-Kk_fc/2,Nk_fc)
 t_an = np.shape(X)[2]
 time_vec = list(range(0,t_an))
@@ -135,22 +139,23 @@ T = time_vec[ii]
 print(' *** Plotting at time T level = ', T)
 print(' *** Assim. time: ', assim_time[T])
 
-# masks for locating model variables in state vector
+### Masks for locating model variables in state vector
 sig_mask = list(range(0,Nk_fc))
 sigu_mask = list(range(Nk_fc,2*Nk_fc))
 sigv_mask = list(range(2*Nk_fc,3*Nk_fc))
 sigr_mask = list(range(3*Nk_fc,4*Nk_fc))
 
-# masks for locating obs locations
+### Masks for locating obs locations
 row_vec_T = list(range(obs_T_d, Nk_fc+1, obs_T_d))
 row_vec_u = list(range(Nk_fc+obs_u_d, 2*Nk_fc+1, obs_u_d))
 row_vec_v = list(range(2*Nk_fc+obs_v_d, 3*Nk_fc+1, obs_v_d))
 row_vec_r = list(range(3*Nk_fc+obs_r_d, 4*Nk_fc+1, obs_r_d))
 sat_pos = list(((sat_init_pos*Nk_fc+sat_vel*Nk_fc*(T+1))%Nk_fc).astype(int))
 row_vec = np.array(sat_pos+row_vec_T+row_vec_u+row_vec_v+row_vec_r)
+
 ##################################################################
 
-# compute means and deviations
+### Compute means and deviations
 Xbar = np.empty(np.shape(X))
 Xdev = np.empty(np.shape(X))
 Xanbar = np.empty(np.shape(X))
@@ -158,14 +163,10 @@ Xandev = np.empty(np.shape(X))
 Xdev_tr = np.empty(np.shape(X))
 Xandev_tr = np.empty(np.shape(X))
 
-#ONE = np.ones([n_ens,n_ens])
-#ONE = ONE/n_ens # NxN array with elements equal to 1/N
 for ii in time_vec:
-#    Xbar[:,:,ii] = np.dot(X[:,:,ii],ONE) # fc mean
     Xbar[:,:,ii] = np.repeat(X[:,:,ii].mean(axis=1), n_ens).reshape(n_d, n_ens)
     Xdev[:,:,ii] = X[:,:,ii] - Xbar[:,:,ii] # fc deviations from mean
     Xdev_tr[:,:,ii] = X[:,:,ii] - X_tr[:,:,ii] # fc deviations from truth
-#    Xanbar[:,:,ii] = np.dot(Xan[:,:,ii],ONE) # an mean
     Xanbar[:,:,ii] = np.repeat(Xan[:,:,ii].mean(axis=1), n_ens).reshape(n_d, n_ens)
     Xandev[:,:,ii] = Xan[:,:,ii] - Xanbar[:,:,ii] # an deviations from mean
     Xandev_tr[:,:,ii] = Xan[:,:,ii] - X_tr[:,:,ii] # an deviations from truth
@@ -199,21 +200,6 @@ B1_an = eta1_an**kgas
 B1_anbar = eta1_anbar**kgas
 
 ### Alpha weights
-#alpha1_fc = 0.5+0.1*np.exp(-70*((X[sig_mask,:,T]-sig_r)**2)/(sig_r-sig_c))
-#erf_fc = 0.5+0.5*sp.erf(-10*X[sig_mask,:,T]+3.8)
-#alpha2_fc = erf_fc*alpha1_fc
-#alpha1_bar = 0.5+0.1*np.exp(-70*((Xbar[sig_mask,0,T]-sig_r)**2)/(sig_r-sig_c))
-#erf_bar = 0.5+0.5*sp.erf(-10*Xbar[sig_mask,0,T]+3.8)
-#alpha2_bar = erf_bar*alpha1_bar
-#alpha1_tr = 0.5+0.1*np.exp(-70*((X_tr[sig_mask,0,T]-sig_r)**2)/(sig_r-sig_c))
-#erf_tr = 0.5+0.5*sp.erf(-10*X_tr[sig_mask,0,T]+3.8)
-#alpha2_tr = erf_tr*alpha1_tr
-#alpha1_an = 0.5+0.1*np.exp(-70*((Xan[sig_mask,:,T]-sig_r)**2)/(sig_r-sig_c))
-#erf_an = 0.5+0.5*sp.erf(-10*Xan[sig_mask,:,T]+3.8)
-#alpha2_an = erf_an*alpha1_an
-#alpha1_anbar = 0.5+0.1*np.exp(-70*((Xanbar[sig_mask,0,T]-sig_r)**2)/(sig_r-sig_c))
-#erf_anbar = 0.5+0.5*sp.erf(-10*Xanbar[sig_mask,0,T]+3.8)
-#alpha2_anbar = erf_anbar*alpha1_anbar
 alpha1_fc = 0.5-0.5*sp.erf(-95*X[sig_mask,:,T]+21.5)
 alpha2_fc = 0.425+0.425*sp.erf(-95*X[sig_mask,:,T]+21.5)
 alpha3_fc = 0.5+0.5*sp.erf(-5*X[sig_mask,:,T]+3)
@@ -236,34 +222,19 @@ alpha3_anbar = 0.5+0.5*sp.erf(-5*Xanbar[sig_mask,0,T]+3)
 alpha4_anbar = 0.5+0.5*sp.erf(-3*Xanbar[sig_mask,0,T]-1.16) 
 
 ### Compute net radiance
-#Bsat_fc = B1_fc*alpha1_fc + B2_fc*alpha2_fc
-#Bsat_bar = B1_bar*alpha1_bar + B2_bar*alpha2_bar
-#Bsat_tr = B1_tr*alpha1_tr + B2_tr*alpha2_tr
-#Bsat_an = B1_an*alpha1_an + B2_an*alpha2_an
-#Bsat_anbar = B1_anbar*alpha1_anbar + B2_anbar*alpha2_anbar
 Bsat_fc = B1_fc*alpha3_fc*alpha1_fc + B2_fc*(alpha2_fc+alpha4_fc)
 Bsat_bar = B1_bar*alpha1_bar*alpha3_bar + B2_bar*(alpha2_bar+alpha4_bar)
 Bsat_tr = B1_tr*alpha1_tr*alpha3_tr + B2_tr*(alpha2_tr+alpha4_tr)
 Bsat_an = B1_an*alpha1_an*alpha3_an + B2_an*(alpha2_an+alpha4_an)
 Bsat_anbar = B1_anbar*alpha1_anbar*alpha3_anbar + B2_anbar*(alpha2_anbar+alpha4_anbar)
 
-print(B1_tr)
-print(B2_tr)
-print(Bsat_tr)
-print(sat_pos)
-print(Y_obs[sig_obs_mask,T])
-print(Y_obs[sig_obs_mask,T-1])
-print(Y_obs[sig_obs_mask,T+1])
-
 fig, axes = plt.subplots(Neq+1, 2, figsize=(15,10), gridspec_kw = {'height_ratios':[1, 3, 3, 3, 3]})
-#plt.suptitle("Ensemble trajectories (t = %s, N = %s): [od, loc, inf] = [%s, %s, %s]" % (assim_time[T],n_ens,o_d[i], loc[j], inf[k]),fontsize=16)
 
 axes[0,0].plot(xc, Bsat_fc[:,1:], 'b',alpha=frac)
 axes[0,0].plot(xc, Bsat_fc[:,0], 'b',alpha=frac,label="fc. ens.")
 axes[0,0].plot(xc, Bsat_bar, 'r',label="Ens. mean")
 axes[0,0].plot(xc, Bsat_tr, 'g',label="Truth")
 if(n_obs_sat>0): axes[0,0].errorbar(xc[sat_pos], Y_obs[sig_obs_mask,T], ob_noise[0], fmt='go',linewidth=2.0,label="Obs.")
-#axes[0,0].set_ylim([np.amin(np.concatenate((interp_sig2etab(X_tr[sig_mask,0,T]),Y_obs[sig_obs_mask,T])))-0.001,np.amax(np.concatenate((interp_sig2etab(X_tr[sig_mask,0,T]),Y_obs[sig_obs_mask,T])))+0.001])
 axes[0,0].set_ylabel('$I_{sat}(x)$',fontsize=18)
 
 axes[0,1].plot(xc, Bsat_an[:,1:], 'b',alpha=frac)
@@ -271,21 +242,6 @@ axes[0,1].plot(xc, Bsat_an[:,0], 'b',alpha=frac,label="an. ens.")
 axes[0,1].plot(xc, Bsat_anbar, 'c',label="Analysis")
 axes[0,1].plot(xc, Bsat_tr, 'g',label="Truth")
 if(n_obs_sat>0): axes[0,1].errorbar(xc[sat_pos], Y_obs[sig_obs_mask,T], ob_noise[0], fmt='go',linewidth=2.0,label="Obs.")
-#axes[0,1].set_ylim([1.031,1.034])
-#axes[0,1].set_ylim([np.amin(np.concatenate((interp_sig2etab(X_tr[sig_mask,0,T]),Y_obs[sig_obs_mask,T])))-0.001,np.amax(np.concatenate((interp_sig2etab(X_tr[sig_mask,0,T]),Y_obs[sig_obs_mask,T])))+0.001])
-
-#axes[1,0].plot(xc, B2_fc[:,1:], 'b',alpha=frac)
-#axes[1,0].plot(xc, B2_fc[:,0], 'b',alpha=frac,label="fc. ens.")
-#axes[1,0].plot(xc, B2_bar, 'r',label="Ens. mean")
-#axes[1,0].plot(xc, B2_tr, 'g',label="Truth")
-#if(n_obs_T>0): axes[1,0].errorbar(xc[row_vec[sigT_obs_mask]-1], Y_obs[sigT_obs_mask,T], ob_noise[1], fmt='go',linewidth=2.0,label="Obs.")
-#axes[1,0].set_ylabel('$T_2(x)$',fontsize=18)
-
-#axes[1,1].plot(xc, B2_an[:,1:], 'b',alpha=frac)
-#axes[1,1].plot(xc, B2_an[:,0], 'b',alpha=frac,label="an. ens.")
-#axes[1,1].plot(xc, B2_anbar, 'c',label="Analysis")
-#axes[1,1].plot(xc, B2_tr, 'g',label="Truth")
-#if(n_obs_T>0): axes[1,1].errorbar(xc[row_vec[sigT_obs_mask]-1], Y_obs[sigT_obs_mask,T], ob_noise[1], fmt='go',linewidth=2.0,label="Obs.")
 
 axes[1,0].plot(xc, X[sig_mask,1:,T], 'b',alpha=frac)
 axes[1,0].plot(xc, X[sig_mask,0,T], 'b',alpha=frac,label="fc. ens.")
@@ -405,16 +361,7 @@ var_fc = np.diag(Pf)
 Pf_tr = np.dot(Xdev_tr[:,:,T],np.transpose(Xdev_tr[:,:,T]))
 Pf_tr = Pf_tr/(n_ens - 1) # fc covariance matrix w.r.t. truth
 var_fct = np.diag(Pf_tr)
-'''
-# fc/an
-ME_ratio_h = np.sqrt(fc_err2[sig_mask])/np.sqrt(an_err2[h_mask])
-ME_ratio_hu = np.sqrt(fc_err2[sigu_mask])/np.sqrt(an_err2[hu_mask])
-ME_ratio_hr = np.sqrt(fc_err2[sigr_mask])/np.sqrt(an_err2[hr_mask])
-# fc - an
-ME_diff_h = np.sqrt(fc_err2[sig_mask])-np.sqrt(an_err2[h_mask])
-ME_diff_hu = np.sqrt(fc_err2[sigu_mask])-np.sqrt(an_err2[hu_mask])
-ME_diff_hr = np.sqrt(fc_err2[sigr_mask])-np.sqrt(an_err2[hr_mask])
-'''
+
 ##################################################################
 
 # fontsize

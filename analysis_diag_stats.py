@@ -1,21 +1,23 @@
 ##################################################################
-#--------------- Error stats for saved data ---------------
+### This script calculate error stats for saved data
 ##################################################################
 
-
-## generic modules
+##################################################################
+# GENERIC MODULES REQUIRED
+##################################################################
 import os
 import errno
 import numpy as np
 import matplotlib.pyplot as plt
-from io import StringIO
 import sys
 
-## custom modules
-#from parameters import *
+##################################################################
+# CUSTOM FUNCTIONS AND MODULES REQUIRED
+##################################################################
 from crps_calc_fun import crps_calc
 
 ##################################################################
+### Function that calculates the stats for the analysis
 
 def ave_stats_an(Nk_fc,Neq,n_d,n_ens,Nmeas,spin_up,indices,outdir,loc,add_inf,rtpp,rtps,X_tr):
     
@@ -184,10 +186,10 @@ def ave_stats_an(Nk_fc,Neq,n_d,n_ens,Nmeas,spin_up,indices,outdir,loc,add_inf,rt
         print('does not exist.. moving on to next one...')
         print(' ')
 
-        # Rewind buffer.
-#        sys.stdout.seek(0)
-
         return float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan')
+
+##################################################################
+### Function that calculates the stats for the forecast at given lead time
     
 def ave_stats_fc(Nk_fc,Neq,n_d,n_ens,Nmeas,spin_up,indices,outdir,loc,add_inf,rtpp,rtps,lead_time,X_tr):
     
@@ -350,4 +352,3 @@ def ave_stats_fc(Nk_fc,Neq,n_d,n_ens,Nmeas,spin_up,indices,outdir,loc,add_inf,rt
         print(' ')
 
         return float('nan'), float('nan'), float('nan'),  float('nan'), float('nan')
-
