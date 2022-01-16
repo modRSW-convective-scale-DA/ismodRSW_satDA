@@ -74,8 +74,8 @@ Here is an overview of the files contained in this repository and what they do. 
 * *inversion_tables/generate_sig_eta.py*: this script should be run as soon as the configuration file has been set up.
 
 ### Model only
-* run_ismodRSW.py
-* hovmoller.py
+* *run_ismodRSW.py*: ...
+* *hovmoller.py*: ...
 
 ### Assimilation framework
 * create_truth+obs.py
