@@ -64,23 +64,32 @@ To kill at any point, press ```Ctrl+c```, or kill the active processes using ```
 
 
 ## Brief overview of files
-
 ...
+
+### Configuration file and look-up table
+* config/config_example.py
+* inversion_tables/generate_sig_eta.py
 
 ### Model only
-
-...
+* run_ismodRSW.py
+* hovmoller.py
 
 ### Assimilation framework
-
-...
+* create_truth+obs.py
+* offlineQ.py
+* main_p.py
 
 ### Plotting and data analysis
-
-...
+* plot_func_t.py
+* plot_func_x.py
+* plot_forec_x.py
+* compare_stats.py
+* run_ismodRSW_EFS.py
+* EFS_stats.py
+* err_doub_hist.py
 
 ### .npy data
 
 ...
 
-## Test cases
+### Test cases
