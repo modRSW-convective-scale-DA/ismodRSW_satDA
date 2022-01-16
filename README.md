@@ -67,7 +67,7 @@ python name_of_script.py config/config_file.py [additional arguments]
 To kill at any point, press ```Ctrl+c```, or kill the active processes using ```top``` from the terminal.
 
 ## Brief overview of files
-Here is an overview of the files contained in this repository and what they do. They are listed in the order they need ti be modified or run.
+Here is an overview of the files contained in this repository and what they do. They are listed in the order they need to be modified or run.
 
 ### Configuration file and look-up table
 * *config/config_example.py*: this file contains all the parameters, file paths and values used for running the ismodRSW model, creating the observing system and  setting up the data assimilation algorithm.
