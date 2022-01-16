@@ -60,7 +60,7 @@ Direct download:
 
 ### Running the code: basics
 
-All python scripts of the repository can be executed from terminal:
+All python scripts of the repository can be executed from terminal, from inside the ismodRSW_sat repository:
 ```
 python name_of_script.py config/config_file.py [additional arguments]
 ```
@@ -70,23 +70,41 @@ To kill at any point, press ```Ctrl+c```, or kill the active processes using ```
 Here is an overview of the files contained in this repository and what they do. They are listed in the order they need to be modified or run.
 
 ### Configuration file and look-up table
-* *config/config_example.py*: this file contains all the parameters, file paths and values used for running the ismodRSW model, creating the observing system and  setting up the data assimilation algorithm.
-* *inversion_tables/generate_sig_eta.py*: this script should be run as soon as the configuration file has been set up.
+* *configs/config_example.py*: this file contains all the parameters, file paths and values used for running the ismodRSW model, creating the observing system and  setting up the data assimilation algorithm.
+* *inversion_tables/generate_sig_eta.py*: this script should be run as soon as the configuration file has been set up. It takes the configuration file as only argument:
+``` 
+python3 inversion_tables/generate_sig_eta.py configs/config_example.py ```
+```
 
 ### Model only
-* *run_ismodRSW.py*: ...
-* *hovmoller.py*: ...
+* *run_ismodRSW.py*: this script is used to run the ismodRSW model without any data assimilation. It takes the configuration file as only argument:
+```
+python3 run_ismodRSW.py configs/config_example.py
+```
+* *hovmoller.py*: this script can be used to plot a Hovmöller plot of the output of run_ismodRSW.py, which needs to be run first. It takes the configuration file as only argument:
+```
+python3 hovmoller.py configs/config_example.py
+```
 
 ### Assimilation framework
-* create_truth+obs.py
-* offlineQ.py
-* main_p.py
+* *create_truth+obs.py*: this script generates the nature run trajectory of the ismodRSW model and generate the observations. It takes the configuration file as only argument:
+```
+python3 create_truth+obs.py configs/config_example.py
+```
+* *offlineQ.py*: this script calculates the model error covariance matrix Q as specified in the configuration file. It needs the script *create_truth+obs.py* to be run first. It takes the configuration file as only argument:
+```
+python3 offlineQ.py configs/config_example.py
+```
+* *main_p.py*: this script launches the main data assimilation routine. It needs both the scripts *create_truth+obs.py* and *offlineQ.py* to be run first. It takes the configuration file as only argument:
+```
+python3 main_p.py configs/config_example.py
+```
 
 ### Plotting and data analysis
-* plot_func_t.py
-* plot_func_x.py
-* plot_forec_x.py
-* compare_stats.py
-* run_ismodRSW_EFS.py
-* EFS_stats.py
-* err_doub_hist.py
+* *plot_func_t.py*: this script
+* *plot_func_x.py*:
+* *plot_forec_x.py*:
+* *compare_stats.py*:
+* *run_ismodRSW_EFS.py*:
+* *EFS_stats.py*
+* *err_doub_hist.py*:
