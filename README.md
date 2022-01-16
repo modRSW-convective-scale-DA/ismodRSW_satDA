@@ -16,7 +16,7 @@ both accepted for publication on the Journal of the Atmosheric Sciences (Early O
 
 * Cantarello, L., Bokhove, O., Tobias, S.M. (2021): An idealised 1.5-layer model with convection and precipitation for satellite data assimilation research. Part I: model dynamics. *Journal of the Atmospheric Sciences*, accepted for publication. [DOI](https://journals.ametsoc.org/view/journals/atsc/aop/JAS-D-21-0022.1/JAS-D-21-0022.1.xml).
 
-* Cantarello, L., Bokhove, O., Tobias, S.M. (2021): An idealised 1.5-layer model with convection and precipitation for satellite data assimilation research. Part II: model derivation. *Journal of the Atmospheric Sciences*, accepted for publication. [DOI](https://journals.ametsoc.org/view/journals/atsc/aop/JAS-D-21-0023.1/JAS-D-21-0023.1.xml).
+* Bokhove, O., Cantarello, L., Tobias, S.M. (2021): An idealised 1.5-layer model with convection and precipitation for satellite data assimilation research. Part II: model derivation. *Journal of the Atmospheric Sciences*, accepted for publication. [DOI](https://journals.ametsoc.org/view/journals/atsc/aop/JAS-D-21-0023.1/JAS-D-21-0023.1.xml).
 
 * Kent T., Cantarello, L., Inverarity, G.W., Tobias, S.M., Bokhove, O. (2020): Idealised forecast-assimilation experiments for convective-scale Numerical Weather Prediction. *EarthArXiv*, [DOI](https://eartharxiv.org/repository/view/1921/). 
 
