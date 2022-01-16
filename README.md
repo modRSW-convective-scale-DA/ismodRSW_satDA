@@ -70,8 +70,8 @@ To kill at any point, press ```Ctrl+c```, or kill the active processes using ```
 Here is an overview of the files contained in this repository and what they do. They are listed in the order they need ti be modified or run.
 
 ### Configuration file and look-up table
-* config/config_example.py
-* inversion_tables/generate_sig_eta.py
+* *config/config_example.py*: this file contains all the parameters, file paths and values used for running the ismodRSW model, creating the observing system and  setting up the data assimilation algorithm.
+* *inversion_tables/generate_sig_eta.py*: this script should be run as soon as the configuration file has been set up.
 
 ### Model only
 * run_ismodRSW.py
