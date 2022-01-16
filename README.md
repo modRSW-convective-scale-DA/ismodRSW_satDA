@@ -101,17 +101,17 @@ python3 main_p.py configs/config_example.py
 ```
 
 ### Plotting and data analysis
-* *plot_func_t.py*: this script generates time series of various domain-average statistics, such as Root Mean Square Error (RMSE), Continuous Ranked Probability Score (CRPS) and Obsevation Influence Diagnostics (OID).
+* *plot_func_t.py*: this script generates time series of various domain-average statistics, such as Root Mean Square Error (RMSE), Continuous Ranked Probability Score (CRPS) and Obsevation Influence Diagnostics (OID). It takes the configuration file as first argument and an integer indicating the experiment as second argument.
 ```
-python3 plot_func_t.py configs/config_example.py 
+python3 plot_func_t.py configs/config_example.py exp_index
 ```
-* *plot_func_x.py*: this script generates...
+* *plot_func_x.py*: this script generates snapshots of 
 ```
-python3
+python3 plot_func_x.py configs/config_example.py exp_index
 ```
-* *plot_forec_x.py*: this script generates...
+* *plot_forec_x.py*: this script generates snapshots of ...
 ```
-python3
+python3 plot_forec_x.py configs/config_example.py exp_index
 ```
 * *compare_stats.py*: this script generates...
 ```
