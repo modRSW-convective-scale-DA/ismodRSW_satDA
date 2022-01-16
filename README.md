@@ -47,15 +47,15 @@ Same for all other modules.
 Clone from terminal (recommended):
 * Go to the directory where you want to save the repository and use the command:
 ```
-git clone https://github.com/modRSW-convective-scale-DA/modRSW_DEnKF.git
+git clone https://github.com/modRSW-convective-scale-DA/ismodRSW_satDA.git
 ```
 * Once downloaded, to get any updates/upgrades to the original clone, use the command:
 ```
-git pull https://github.com/modRSW-convective-scale-DA/modRSW_DEnKF.git
+git pull https://github.com/modRSW-convective-scale-DA/ismodRSW_satDA.git
 ```
 
 Direct download: 
-* click on the download link on the repository homepage [https://github.com/modRSW-convective-scale-DA/modRSW_DEnKF](https://github.com/modRSW-convective-scale-DA/modRSW_DEnKF) and save to desired directory.
+* click on the download link on the repository url [https://github.com/modRSW-convective-scale-DA/ismodRSW_satDA](https://github.com/modRSW-convective-scale-DA/ismodRSW_satDA) and save to desired directory.
 
 ### Running the code: basics
 ...
