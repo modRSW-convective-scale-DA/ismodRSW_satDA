@@ -8,6 +8,7 @@ This repository contains the relevant source code and documentation for the rese
 
 both accepted for publication on the Journal of the Atmosheric Sciences (Early Online Release: <a href='https://journals.ametsoc.org/view/journals/atsc/aop/JAS-D-21-0022.1/JAS-D-21-0022.1.xml'>Part I</a>; <a href='https://journals.ametsoc.org/view/journals/atsc/aop/JAS-D-21-0023.1/JAS-D-21-0023.1.xml'>Part II</a>). It also includes the code used in Luca Cantarello's PhD (Cantarello 2021, available <a href='https://etheses.whiterose.ac.uk/29672/'>here</a>) which uses a revised version of the idealised fluid model developed by Tom Kent (modRSW; Kent et al. 2017) and a Deterministic Ensemble Kalman Filter (DEnKF) to run satellite data assimilation experiments. This README contains sufficient instruction for users to download, implement and adapt the source code, which briefly comprises Python3 scripts for the numerical solver for the discretised model, data assimilation algorithms, plotting and data analysis. 
 
+For any questions or code bugs please send an email to mmlca@leeds.ac.uk.
 
 ## References
 #### Thesis + articles:
@@ -58,13 +59,15 @@ Direct download:
 * click on the download link on the repository url [https://github.com/modRSW-convective-scale-DA/ismodRSW_satDA](https://github.com/modRSW-convective-scale-DA/ismodRSW_satDA) and save to desired directory.
 
 ### Running the code: basics
-...
 
+All python scripts of the repository can be executed from terminal:
+```
+python name_of_script.py config/config_file.py [additional arguments]
+```
 To kill at any point, press ```Ctrl+c```, or kill the active processes using ```top``` from the terminal.
 
-
 ## Brief overview of files
-...
+Here is an overview of the files contained in this repository and what they do. They are listed in the order they need ti be modified or run.
 
 ### Configuration file and look-up table
 * config/config_example.py
@@ -87,9 +90,3 @@ To kill at any point, press ```Ctrl+c```, or kill the active processes using ```
 * run_ismodRSW_EFS.py
 * EFS_stats.py
 * err_doub_hist.py
-
-### .npy data
-
-...
-
-### Test cases
