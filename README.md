@@ -68,13 +68,13 @@ To kill at any point, press ```Ctrl+c```, or kill the active processes using ```
 
 ### Working out the experiment index
 
-In order to be executed, many of the scripts contained in this repository require as argument an experiment index associated with the desired set of filter parameters (loc, add_inf, rtps). This index is an integer which depends on the total number of combinations given by the list of parameters defined in the configuration file. For example, given the following set of parameters in the configuration file:
+In order to be executed, many of the scripts contained in this repository require as argument an experiment index (exp_idx) associated with the desired set of filter parameters (loc, add_inf, rtps). This index is an integer which depends on the total number of combinations given by the list of parameters defined in the configuration file. For example, given the following set of parameters in the configuration file:
 ```
 loc = [0.5, 1.0]
 add_inf = [0.1, 0.2]
 rtps = [0.3, 0.6]
 ```
-the total number of parameter combinations would be 8 (2 localisation values x 2 additive inflation values x 2 rtps values). The experiment index is therefore defined as an integer between 1 and 8 that loops over each parameter:
+the total number of parameter combinations would be 8 (2 localisation values x 2 additive inflation values x 2 rtps values). The experiment index exp_idx is therefore defined as an integer between 1 and 8 that loops over each parameter in the following order:
 ```
 exp_idx=1
 for i in loc:
@@ -118,25 +118,25 @@ python3 main_p.py configs/config_example.py
 ```
 
 ### Plotting and data analysis
-* *plot_func_t.py*: this script generates time series of various domain-average statistics, such as Root Mean Square Error (RMSE), Continuous Ranked Probability Score (CRPS) and Obsevation Influence Diagnostics (OID). It takes four arguments: 1) the configuration file, 2) an integer associated to the experiment, and 3)-4) two different lead times for the plotting.
+* *plot_func_t.py*: this script generates time series of various domain-average statistics, such as Root Mean Square Error (RMSE), Continuous Ranked Probability Score (CRPS) and Obsevation Influence Diagnostics (OID). It takes four arguments: 1) the configuration file, 2) the experiment index, and 3)-4) two different lead times for the plotting.
 ```
 python3 plot_func_t.py configs/config_example.py exp_index lead_time1 lead_time2
 ```
-* *plot_func_x.py*: this script generates a snapshot of the model solution, the analysis and the observations at the specified validity time. It takes three argument: 1) the configuration file, 2) an integer associated to the experiment
+* *plot_func_x.py*: this script generates a snapshot of the model solution, the analysis and the observations at the specified analysis time. It takes three argument: 1) the configuration file, 2) the experiment index, and 3) the analysis time.
 ```
 python3 plot_func_x.py configs/config_example.py exp_index analysis_time
 ```
-* *plot_forec_x.py*: this script generates a snapshot of the model solution at the specified analysis_time+lead_time
+* *plot_forec_x.py*: this script generates a snapshot of the model solution at the specified validity time (i.e. analysis time plus lead time). It takes three argument: 1) the configuration file, 2) the experiment index, 3) the analysis time, and 4) the lead time.
 ```
 python3 plot_forec_x.py configs/config_example.py exp_index analysis_time lead_time
 ```
-* *compare_stats.py*: this script generates...
+* *compare_stats.py*: this script generates an overview of various diagnostics...
 ```
 python3 compare_stats.py configs/config_example.py
 ```
-* *run_ismodRSW_EFS.py*: this script ...
+* *run_ismodRSW_EFS.py*: this script launches an ensemble of forecast simulations initialised with the desired analysis ensemble.
 ```
-python3 run_ismodRSW_EFS.py configs/config_example.py
+python3 run_ismodRSW_EFS.py configs/config_example.py 
 ```
 * *EFS_stats.py*: this script ...
 ```
