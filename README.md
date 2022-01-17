@@ -74,7 +74,7 @@ loc = [0.5, 1.0]
 add_inf = [0.1, 0.2]
 rtps = [0.3, 0.6]
 ```
-...
+the total number of parameter combinations is 8 (2 localisation values x 2 additive inflation values x 2 rtps values) and therefore the experiment index can take any values between 1 and 8... 
 
 ## Brief overview of files
 Here is an overview of the files contained in this repository and what they do. They are listed in the order they need to be modified or run.
