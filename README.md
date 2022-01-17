@@ -115,11 +115,11 @@ python3 plot_forec_x.py configs/config_example.py exp_index
 ```
 * *compare_stats.py*: this script generates...
 ```
-python3
+python3 compare_stats.py configs/config_example.py
 ```
 * *run_ismodRSW_EFS.py*: this script ...
 ```
-python3
+python3 run_ismodRSW_EFS.py configs/config_example.py
 ```
 * *EFS_stats.py*: this script ...
 ```
