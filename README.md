@@ -68,13 +68,14 @@ To kill at any point, press ```Ctrl+c```, or kill the active processes using ```
 
 ### Working out the experiment index
 
-In order to be executed, many of the scripts contained in this repository require an experiment index associated with a specific set of filter parameters (loc, add_inf, rtps) as argument. This index is an integer which depends on the total number of combinations given by the list of parameters defined in the configuration file. For example, given the following set of parameters in the configuration file:
+In order to be executed, many of the scripts contained in this repository require as argument an experiment index associated with the desired set of filter parameters (loc, add_inf, rtps). This index is an integer which depends on the total number of combinations given by the list of parameters defined in the configuration file. For example, given the following set of parameters in the configuration file:
 ```
 loc = [0.5, 1.0]
 add_inf = [0.1, 0.2]
 rtps = [0.3, 0.6]
 ```
-the total number of parameter combinations is 8 (2 localisation values x 2 additive inflation values x 2 rtps values) and therefore the experiment index can take any values between 1 and 8... 
+the total number of parameter combinations would be 8 (2 localisation values x 2 additive inflation values x 2 rtps values). The experiment index is therefore defined as:
+...
 
 ## Brief overview of files
 Here is an overview of the files contained in this repository and what they do. They are listed in the order they need to be modified or run.
