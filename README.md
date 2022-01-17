@@ -74,8 +74,14 @@ loc = [0.5, 1.0]
 add_inf = [0.1, 0.2]
 rtps = [0.3, 0.6]
 ```
-the total number of parameter combinations would be 8 (2 localisation values x 2 additive inflation values x 2 rtps values). The experiment index is therefore defined as:
-...
+the total number of parameter combinations would be 8 (2 localisation values x 2 additive inflation values x 2 rtps values). The experiment index is therefore defined as an integer between 1 and 8 that loops over each parameter:
+```
+exp_idx=1
+for i in loc:
+  for j in add_inf:
+    for k in rtps:
+      exp_idx=+1
+```
 
 ## Brief overview of files
 Here is an overview of the files contained in this repository and what they do. They are listed in the order they need to be modified or run.
