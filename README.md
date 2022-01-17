@@ -131,13 +131,13 @@ python3 plot_func_x.py configs/config_example.py exp_index analysis_time
 ```
 python3 plot_forec_x.py configs/config_example.py exp_index analysis_time lead_time
 ```
-* *compare_stats.py*: this script generates an overview of various diagnostics...
+* *compare_stats.py*: this script generates a graphical summary of various diagnostics for all the experiments listed in the configuration file. It takes the configuration file as argument.
 ```
 python3 compare_stats.py configs/config_example.py
 ```
-* *run_ismodRSW_EFS.py*: this script launches an ensemble of forecast simulations initialised with the desired analysis ensemble.
+* *run_ismodRSW_EFS.py*: this script launches an ensemble of forecast simulations initialised with the desired analysis ensemble. The duration of the forecast is specified inside the script by Tfc, which is currently set to ```Tfc=36```.
 ```
-python3 run_ismodRSW_EFS.py configs/config_example.py 
+python3 run_ismodRSW_EFS.py configs/config_example.py analysis_time
 ```
 * *EFS_stats.py*: this script ...
 ```
