@@ -66,6 +66,16 @@ python name_of_script.py config/config_file.py [additional arguments]
 ```
 To kill at any point, press ```Ctrl+c```, or kill the active processes using ```top``` from the terminal.
 
+### Working out the experiment index
+
+In order to be executed, many of the scripts contained in this repository require an experiment index associated with a specific set of filter parameters (loc, add_inf, rtps) as argument. This index is an integer which depends on the total number of combinations given by the list of parameters defined in the configuration file. For example, given the following set of parameters in the configuration file:
+```
+loc = [0.5, 1.0]
+add_inf = [0.1, 0.2]
+rtps = [0.3, 0.6]
+```
+...
+
 ## Brief overview of files
 Here is an overview of the files contained in this repository and what they do. They are listed in the order they need to be modified or run.
 
@@ -101,15 +111,15 @@ python3 main_p.py configs/config_example.py
 ```
 
 ### Plotting and data analysis
-* *plot_func_t.py*: this script generates time series of various domain-average statistics, such as Root Mean Square Error (RMSE), Continuous Ranked Probability Score (CRPS) and Obsevation Influence Diagnostics (OID). It takes the configuration file as first argument and an integer indicating the experiment as second argument.
+* *plot_func_t.py*: this script generates time series of various domain-average statistics, such as Root Mean Square Error (RMSE), Continuous Ranked Probability Score (CRPS) and Obsevation Influence Diagnostics (OID). It takes four arguments: 1) the configuration file, 2) an integer associated to the experiment, and 3)-4) two different lead times for the plotting.
 ```
 python3 plot_func_t.py configs/config_example.py exp_index lead_time1 lead_time2
 ```
-* *plot_func_x.py*: this script generates snapshots of 
+* *plot_func_x.py*: this script generates a snapshot of the model solution, the analysis and the observations at the specified validity time. It takes three argument: 1) the configuration file, 2) an integer associated to the experiment
 ```
 python3 plot_func_x.py configs/config_example.py exp_index analysis_time
 ```
-* *plot_forec_x.py*: this script generates snapshots of ...
+* *plot_forec_x.py*: this script generates a snapshot of the model solution at the specified analysis_time+lead_time
 ```
 python3 plot_forec_x.py configs/config_example.py exp_index analysis_time lead_time
 ```
