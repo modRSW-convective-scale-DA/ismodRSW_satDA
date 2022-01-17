@@ -4,6 +4,7 @@
 This repository contains the relevant source code and documentation for the research papers: 
 
 ```Cantarello et al (2022): An idealised 1.5-layer model with convection and precipitation for satellite data assimilation research. Part I: model dynamics;```
+
 ```Bokhove et al (2022): An idealised 1.5-layer model with convection and precipitation for satellite data assimilation research. Part II: model derivation;```
 
 both accepted for publication on the Journal of the Atmosheric Sciences (Early Online Release: <a href='https://journals.ametsoc.org/view/journals/atsc/aop/JAS-D-21-0022.1/JAS-D-21-0022.1.xml'>Part I</a>; <a href='https://journals.ametsoc.org/view/journals/atsc/aop/JAS-D-21-0023.1/JAS-D-21-0023.1.xml'>Part II</a>). It also includes the code used in Luca Cantarello's PhD (Cantarello 2021, available <a href='https://etheses.whiterose.ac.uk/29672/'>here</a>) which uses a revised version of the idealised fluid model developed by Tom Kent (modRSW; Kent et al. 2017) and a Deterministic Ensemble Kalman Filter (DEnKF) to run satellite data assimilation experiments. This README contains sufficient instruction for users to download, implement and adapt the source code, which briefly comprises Python3 scripts for the numerical solver for the discretised model, data assimilation algorithms, plotting and data analysis. 
