@@ -135,9 +135,9 @@ python3 plot_forec_x.py configs/config_example.py exp_index analysis_time lead_t
 ```
 python3 compare_stats.py configs/config_example.py
 ```
-* *run_modRSW_EFS.py*: this script launches an ensemble of forecast simulations initialised with the desired analysis ensemble and for the selected experiment. The duration of the forecast is specified inside the script by Tfc, which is currently set to ```Tfc=36```. It takes three arguments: 1) the configuration file, 2) the experiment index, and 3) the analysis time.
+* *run_ismodRSW_EFS.py*: this script launches an ensemble of forecast simulations initialised with the desired analysis ensemble and for the selected experiment. The duration of the forecast is specified inside the script by Tfc, which is currently set to ```Tfc=36```. It takes three arguments: 1) the configuration file, 2) the experiment index, and 3) the analysis time.
 ```
-python3 run_modRSW_EFS.py configs/config_example.py exp_index analysis_time
+python3 run_ismodRSW_EFS.py configs/config_example.py exp_index analysis_time
 ```
 * *EFS_stats.py*: this script computes the error doubling times statistics using the output of *run_ismodRSW_EFS.py*, which needs to be run first (for the same analysis time). It takes three arguments: 1) the configuration time, 2) the experiment index, and 3) the analysis time.
 ```
